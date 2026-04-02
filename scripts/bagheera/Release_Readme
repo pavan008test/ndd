@@ -1,0 +1,10 @@
+after running ./bagheera_rel_packager.sh release_2_0.sh
+
+copy autocam, config and work(tycho) to package folder
+copy bagheera.sh and BAGHEERA.service files to bagheera_service folder
+copy install.sh, nohup.out to bin folder
+copy log folder to nddevide
+copy cloudconfig.ini and command.txt to nddevide/latest
+
+
+Now you can zip package to release.tar.bz2 and install.sh can install it in DVT1

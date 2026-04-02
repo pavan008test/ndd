@@ -1,0 +1,8 @@
+Addition of latest Realtek Drivers in upcoming D450 OTA 
+
+The latest realtek ko updated in https://netradyne.atlassian.net/browse/DT-3251
+Jira-id : https://netradyne.atlassian.net/browse/DT-2800
+https://netradyne.atlassian.net/browse/BGR3-1359
+
+Inclusion of the D450_rtl8822ce_wifi_module_6a6a_1x1.ko driver (MD5: e95d63a73f442231ddcad2770e179545  rtl8822ce_wifi_module.ko), which includes both the 1x1 antenna patch and the 6a6a patch.
+And the same ko is present from 13.0.29 OS 

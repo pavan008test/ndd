@@ -1,0 +1,4 @@
+This task is to check the OS version to apply this OTA. This is being introduced for OS_OTA installation to check whether the OS present in the device is supported for OS_OTA update.
+
+This will be continued to normal OTA also to make sure the new OTA should not apply on older OS
+

@@ -1,0 +1,18 @@
+Jira: id : https://netradyne.atlassian.net/browse/DT-2775
+Jira ID - DT-3207 - Sierra Wireless not detected at bootup in lsusb 3-4 minute delay causing connectivity loss ;
+Jira ID - BGR3-1369 - Err,Sierra modem not detected and Hence usb ports are also not detected
+
+Description :
+
+Copying the latest libft4222.so.1.4.4.232 to /lib/ and linking it as libft4222.so
+
+md5sum libft4222.so.1.4.4.232
+cc0f792e1ad002a8d04ee3eb4b3a4ae3 libft4222.so.1.4.4.232
+
+This file, expander_init, should be copied to /bin/vendor/  with permissions set to 755.
+MD5SUM: 690fa2624faa9c895dd9df61ae1fab89
+
+The expander_init module depends on the library libft4222.so.1.4.4.232. If this library is missing, it causes issues, resulting in the Sierra modem not being detected.
+
+FT4222 support for Vehicle Data reader V4
+https://netradyne.atlassian.net/browse/DT-2775?focusedCommentId=495648

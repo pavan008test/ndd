@@ -1,0 +1,8 @@
+Copying the updated sc7 scripts 
+With the both 13.0.18 and 13.0.19 OS sc7_exit.sh script is up to date
+e0460d76023bed296b1d2ecce634ca12  sc7_exit.sh
+
+sc7_entry.sh got updated when compare with 13.0.18 and 13.0.19 OS
+b84cf3bd9f976c5a5f8e0454391ba493  sc7_entry.sh
+
+jira_id: https://netradyne.atlassian.net/browse/BGR3-751

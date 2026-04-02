@@ -1,0 +1,12 @@
+
+[Unit]
+Description=##########___ND_SUSPENDRESUME___##########
+#Before=sleep.target
+StopWhenUnneeded=yes
+
+[Service]
+Type=oneshot
+StandardOutput=syslog
+RemainAfterExit=yes
+ExecStart=/home/ubuntu/.nddevice/latest/service/nd_suspendresume/nd_suspendresume.sh
+

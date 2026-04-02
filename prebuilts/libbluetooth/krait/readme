@@ -1,0 +1,9 @@
+Author : Dhanyath R
+Author Email : dhanyath.ravi@netradyne.com
+
+Jira ID : DT-2995 - Rar task to replace libbluetoothdefault.so.0.0.0 in /usr/lib64
+
+Description : 
+
+On January 5th 2026, the respective binary was updated as per the request mentioned in the above Jira ID.
+md5sum of the updated Binary : 082261925d3c52c524ecfcf575895bda

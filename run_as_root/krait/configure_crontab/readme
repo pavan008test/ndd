@@ -1,0 +1,4 @@
+  #KRT-102 : Configuring the crontab in krait through .cron file. Crontab data should be kept in a file *.cron (krait_conf.cron) and provide the file name as argument to the command "crontab". The data in the *.cron file should be exactly as the crontab format so that everything present in that file will be replaced in the crontab of a machine. 
+Note : provide the obsolute path of *.cron if it is present in any other location than the location from where the command is executed.
+
+And this file can be modified and can be executed in the future also for any crontab data updates in krait.

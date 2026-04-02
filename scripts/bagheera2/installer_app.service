@@ -1,0 +1,13 @@
+[Unit]
+Description=NDService-installer_app
+
+[Service]
+Type=simple
+KillMode=mixed
+SendSIGKILL=yes
+
+ExecStart=/home/ubuntu/bin/wrapper_service.sh installer_app
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

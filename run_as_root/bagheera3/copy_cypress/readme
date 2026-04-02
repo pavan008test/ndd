@@ -1,0 +1,12 @@
+Copying the latest cypress files on top of 13.0.19 and 13.0.1A os 
+
+3e1502beffd9d4a7f8b3407f3a9d72b4  cyfmac4356-pcie.bin
+5f87d9aa5088287e4058ff690a966adc  cyfmac4356-pcie.clm_blob
+2ea1b9f7a87b667eab22d8a11a6e55b6  cyfmac4356-pcie.txt
+2d8591f4c9da44a1dc4d5dded662dbb9  cyfmac4356-sdio.bin
+feab14046344d6b42c621ad4988b5954  cyfmac4356-sdio.clm_blob
+216bb1c33c795343c724e95841c9ee12  cyfmac54591-pcie.nvidia,p3509-0000+p3636-0001.bin
+12b6e96d85c4b31b0657eef4b3138b95  cyfmac54591-pcie.txt
+4e48abf55cdf7e1f4b17222fdfda5b1c  run.sh
+
+https://netradyne.atlassian.net/browse/DT-1146

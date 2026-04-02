@@ -1,0 +1,7 @@
+
+Renameing the /usr/bin/sierra_powerup.sh script to not to execute during the bootup through clik_service.sh
+
+This avoid delay of reset of lumia during every bootup. 
+
+KRT2-73
+

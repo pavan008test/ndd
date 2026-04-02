@@ -1,0 +1,6 @@
+Remove nd_onetime_setup folder
+
+
+As part of SISA program, team identified nd_onetime_setup scripts are present in production devices which we use for OS flash for krait devices, using the contents present user can modify and potentially can make device misbehave w.r.t functionality or swam the cloud with malicious messages.
+
+We should remove that folder before shipping the devices from Factory.  Please add this as part of Factory SOP process.

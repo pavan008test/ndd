@@ -1,0 +1,529 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:			startup
+# Required-Start:
+# Required-Stop:
+# Default-Start:	2 3 4 5
+# Default-Stop:		0 6
+# Short-Description:	NTDI_BAG3 specific script
+# Description:
+### END INIT INFO
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin:/bin/vendor
+TEMP_DRIVER=/lib/modules/`uname -r`/kernel/drivers/hwmon/tmp102.ko
+
+PCI_VENDOR_ID_AZUREWAVE="0x14e4"
+PCI_DEVICE_ID_AZUREWAVE="0x43ec"
+PCI_DEVICE_PATH="/sys/bus/pci/devices/"
+PCI_DEVICE_RESCAN_PATH="/sys/bus/pci/rescan"
+PCI_KERNEL_DEVICE_PATH=""
+
+AZUREWAVE_MODULE=0
+REALTEK_MODULE=1
+INFINEON_MODULE=2
+UNKNOWN_MODULE=3
+
+WIFI_BT_MODULE=1
+AZUREWAVE_INFINEON_WIFI_BT_MODULE_STR="Broadcom"
+AZUREWAVE_WIFI_BT_MODULE_STR="Wireless"
+REALTEK_WIFI_BT_MODULE_STR="Realtek"
+INFINEON_WIFI_BT_MODULE_STR="4355"
+
+SPEAKER="TAS2563"
+DEBUG=0
+
+find_device_path() {
+	for device_path in "$PCI_DEVICE_PATH"*
+	do
+		#If the file doesn't exist, then the PCI_KERNEL_VENDOR variable will be empty, and the check fails
+		PCI_KERNEL_VENDOR=$(cat "$device_path/vendor" 2>/dev/null)
+		if [ "$PCI_KERNEL_VENDOR" = "$PCI_VENDOR_ID_AZUREWAVE" ]; then
+			PCI_KERNEL_DEVICE=$(cat "$device_path/device" 2>/dev/null)
+			if [ "$PCI_KERNEL_DEVICE" = "$PCI_DEVICE_ID_AZUREWAVE" ]; then
+				echo "AzureWave Device path found"
+				PCI_KERNEL_DEVICE_PATH="$device_path"
+				return 0
+			else
+				echo "PCI DEVICE_ID for path ${device_path} is ${PCI_KERNEL_DEVICE}, not matching" 
+			fi
+		else
+				echo "PCI VENDOR_ID for path ${device_path} is ${PCI_KERNEL_VENDOR}, not matching"
+		fi
+	done
+	return 1
+}
+
+check_wifi_bt_module() {
+    # Checks to See AzureWave or RealTek Wifi/BT module
+        lspci | grep -q $AZUREWAVE_INFINEON_WIFI_BT_MODULE_STR
+        if [ $? -eq 0 ]; then
+                if lspci | grep -q $AZUREWAVE_WIFI_BT_MODULE_STR; then
+                        if [ $? -eq 0 ]; then
+                                WIFI_BT_MODULE=$AZUREWAVE_MODULE
+                                echo "Azurewave Wifi/BT module is detected."
+                        fi
+	# Check if Infineon Module is present
+                elif lspci | grep -q $INFINEON_WIFI_BT_MODULE_STR; then
+                        if [ $? -eq 0 ]; then
+                                WIFI_BT_MODULE=$INFINEON_MODULE
+                                echo "Infineon Wifi/BT module is detected."
+                        fi
+                fi
+	# Check if Realtek Module is present
+        else
+                lspci | grep -q $REALTEK_WIFI_BT_MODULE_STR
+                if [ $? -eq 0 ]; then
+                        WIFI_BT_MODULE=$REALTEK_MODULE
+                        echo "RealTek Wifi module is detected."
+                else
+                        WIFI_BT_MODULE=$UNKNOWN_MODULE
+			echo "Neither Azurewave not RealTek not Infineon Wifi is detected."
+                fi
+        fi
+}
+
+toggle_and_reset_azurewave_pcie() {
+	retries=3	#Number of retries before giving up on resetting AZW Wifi/BT module
+	delay=2		#Delay in seconds between retries to allow PCI subsystem to stabilize after reset attempt
+	attempt=1	#Current attempt number
+
+	while [ $attempt -le $retries ]
+	do
+		# Perform cold start for the Azurewave module by turning off both regulators
+	    gpio_test -n 235 -o 0
+		gpio_test -n 232 -o 0
+		# Both REG_ON low: Allow internal CBUCK regulator to fully discharge (>=10 ms min)
+		# Ensures clean PMU cold start and avoids inrush spike
+		sleep 0.3
+        gpio_test -n 235 -o 1
+		# Starts internal PMU, VDDC ramp, and internal POR (~110 ms max)
+		# Wait for power rails and refclk request to stabilize
+		sleep 0.3
+		gpio_test -n 232 -o 1
+		# Release BT reset after regulators are stable
+		# Ensure device fully ready before PCIe/SDIO access
+	    sleep 1
+		[ "$DEBUG" -ne 0 ] && echo "Attempting to find device path (attempt ${attempt}/${retries})"
+		find_device_path
+		find_result=$?
+		[ "$DEBUG" -ne 0 ] && echo "find_device_path returned: $find_result (attempt ${attempt}/${retries})"
+		if [ "$find_result" -eq 0 ]; then
+			echo "Resetting Azurewave module via PCI device path (attempt ${attempt}/${retries})"
+			# As the Azurewave device was already found on boot, resources were already allocated for the wifi section by PCIe, now after the AZW chip has been reset, this data is stale and
+			# needs to be cleared by removing the device from the PCI subsystem and rescanning to allow the kernel to re-enumerate the device and allocate resources fresh, else the brcmfmac driver will fail to load due to the stale resource data and the wifi/BT won't come up
+			if echo 1 > "$PCI_KERNEL_DEVICE_PATH/remove" 2>/dev/null; then
+				sleep 0.5
+				if echo 1 > "$PCI_DEVICE_RESCAN_PATH" 2>/dev/null; then
+					sleep 0.5
+					# Check lspci output for device to confirm rescan worked
+					if lspci | grep -q "Broadcom"; then
+						echo "Successfully reset Azurewave module via PCI - Device detected in lspci (attempt ${attempt}/${retries})"
+						return 0
+					else
+						echo "Device not found in lspci after rescan (attempt ${attempt}/${retries})"
+					fi
+				else
+					echo "Failed to rescan PCI devices (attempt ${attempt}/${retries})"
+				fi
+			else
+				echo "Failed to remove PCI device (attempt ${attempt}/${retries})"
+				echo 1 > "$PCI_DEVICE_RESCAN_PATH" 2>/dev/null || true
+			fi
+		else
+			echo "Azurewave PCI device path not found in sysfs (attempt ${attempt}/${retries})"
+			# Even if device path not in sysfs, device may have come back online after previous removal
+			# Rescan PCI bus to detect if device reappeared
+			if echo 1 > "$PCI_DEVICE_RESCAN_PATH" 2>/dev/null; then
+				sleep 0.5
+				# Check lspci output to confirm device is back online
+				if lspci | grep -q "Broadcom"; then
+					echo "Successfully reset Azurewave module via PCI - Device detected in lspci (attempt ${attempt}/${retries})"
+					return 0
+				else
+					echo "Device not found in lspci after rescan (attempt ${attempt}/${retries})"
+				fi
+			else
+				echo "Failed to rescan PCI devices (attempt ${attempt}/${retries})"
+				echo 1 > "$PCI_DEVICE_RESCAN_PATH" 2>/dev/null || true
+			fi
+		fi
+		attempt=$((attempt+1))
+		sleep $delay
+	done
+
+	return 1
+}
+
+# Check if interface is up
+is_interface_up()
+{
+    cnt=3
+    while [ $cnt -gt 0 ]
+    do
+	iw dev | grep -q wlan1
+	st=$?
+	if [ $st -eq 0 ]; then
+		rename_network_interface
+		break
+	fi
+	cnt=$((cnt--))
+	sleep 2
+    done
+
+    if [ $st -ne 0 ]
+    then
+        echo "WIFI AP - Failed : iw dev failed to list wlan1!"
+    fi
+}
+
+rename_network_interface(){
+
+	ip link set wlan1 down
+	ip link set wlan1 name secondary
+	ip link set secondary up
+	sleep 1
+	sudo systemctl restart NetworkManager
+}
+get_speaker_type(){
+	tas2505_i2c_detect=$(i2cdetect -y -r 7 0x18 0x18 | grep -E -q '18|UU'; echo $?)
+	tas2563_i2c_detect=$(i2cdetect -y -r 7 0x4e 0x4e | grep -E -q '4e|UU'; echo $?)
+	if [ "$tas2505_i2c_detect" -eq "0" ]; then
+		SPEAKER="TAS2505"
+	elif [ "$tas2563_i2c_detect" -eq "0"  ]; then
+		SPEAKER="TAS2563"
+	else
+		echo "No speaker detected..."
+	fi
+	echo "$SPEAKER" > /etc/vendor/speaker_type
+}
+
+update_speaker() {
+	get_speaker_type
+	echo "Speaker type selected = $SPEAKER"
+	tas2563_loaded=$(i2cdetect -y -r 7 0x4e 0x4e | grep -q UU; echo $?)
+	tas2505_loaded=$(i2cdetect -y -r 7 0x18 0x18 | grep -q UU; echo $?)
+	# Read the version from the /etc/nd_os_ver.ini file
+	nd_os_ver=$(awk -F'=' '/^nd_os/ {print $2}' /etc/nd_os_ver.ini)
+
+	# Compare the version to 13.0.19 using dpkg
+	if dpkg --compare-versions "$nd_os_ver" le "13.0.19" || dpkg --compare-versions "$nd_os_ver" eq "13.0.1A"; then
+		echo "OS version $nd_os_ver not updating speaker"
+		return
+	fi
+
+	if [ "$SPEAKER" = "TAS2563" ]; then
+		if [ "$tas2563_loaded" -ne "0" ]; then
+			echo "TAS2563 driver not loaded..."
+			echo "TAS2563 driver loading manually..."
+			sudo modprobe crc8
+			sudo modprobe snd_soc_integrated_tasdevice
+		else
+			echo "TAS2563 module already loaded"
+		fi
+	elif [ "$SPEAKER" = "TAS2505" ]; then
+		if [ "$tas2505_loaded" -ne "0" ]; then
+			echo "** starting upgrade_dtb.service **"
+			systemctl start upgrade_dtb.service
+		else
+			echo "TAS2505 module already updated"
+		fi
+	else
+		echo "No compatible speaker found. This should not happen."
+	fi
+}
+
+do_start() {
+
+    	echo "##### B3 Init script S $(date +"%c %T.%N") #####"
+
+	if dpkg --compare-versions "$nd_os_ver" le "13.0.19" || dpkg --compare-versions "$nd_os_ver" eq "13.0.1A"; then
+		#OV491 PWRDN Set to low
+		gpio_test -n 424 -o 0
+
+		#OV491 ISP RESET
+		gpio_test -n 243 -o 0
+		sleep 0.5
+		gpio_test -n 243 -o 1
+		sleep 0.5
+		echo "####ISP Reset & PWRDN GPIO set to Output####"
+	fi
+
+	#Wifi/BT Module check
+	check_wifi_bt_module
+
+	#Flash Aon Application if required
+	/etc/init.d/aon_check.sh /image_upgrade/aon/bag3_aon.efm8
+
+	expander_init
+	echo "Power On USB HUB"
+	gpio_test -n 239 -s 0
+	sleep 0.1
+	gpio_test -n 240 -s 0
+	sleep 0.1
+	mkdir -p /fru_check/tmp
+	mkdir -p /fru_check/tmp2
+
+	#RTC SUPERCAP Charging time and voltage
+        i2cset -f -y 4 0x3c 0x04 0x25
+
+	# NOTE: Outward ISP version Check and flash is disabled at bootup
+	#Bag3 OUTCAM ISP Flash Check
+	#/etc/init.d/b3_v2_isp_flash_check.sh -p b3_v2 -o /image_upgrade/isp/bag3_v2_outcam.bin
+
+	#ISP Boot Status command
+	echo "##### ISP Boot Status #####"
+	i2c_transfer 0 16 2 24 31a4
+
+	#Fan PWM
+	echo 0 > /sys/class/pwm/pwmchip2/export
+	cd /sys/class/pwm/pwmchip2/pwm0
+	echo 20000 > period
+	echo 1 > duty_cycle
+	echo 1 > enable
+	#echo 170 > /sys/devices/pwm-fan/target_pwm
+	#IRLED PWM
+	mw_test  0x0c3010a8  0x00000401
+
+        #GPIO06 - Input Internal pulldown - #TODO Remove once issue fixed
+        mw_test  0x02434010  0x00000055
+
+	#DMS-USB signal strength command
+	mw_test 0x03520114 0x0000000b
+	#USB1(Lumia USB) eye diagram equalization
+	mw_test 0x035200D4 0x0000000e
+
+	echo "Setting max and min threshold for tmp102"
+	echo 70000 > /sys/bus/i2c/devices/0-0049/hwmon/hwmon4/temp1_max
+	echo 65000 > /sys/bus/i2c/devices/0-0049/hwmon/hwmon4/temp1_max_hyst
+
+	# Export Usb-Uart bridge and configure lumia3 gpio
+	lumia3_gpio_configure.sh
+
+	# Registering callback for monitoring carrier reset check
+	#carrier_reset_check & // Need to Move to AON / APM Service
+
+        # Capture and storing of Boot Logs
+        boot_log &
+
+	# Enable ltc3350_avg_peak_pwr loop
+	/bin/vendor/ltc3350_pwr_loop &
+
+	#Making previous boot status env variable to 0
+	echo 0 > /sys/block/mmcblk0boot1/force_ro
+	fw_setenv p_prev_boot_status 0
+
+	#CAN and LUMIA USB enable and fault detection
+	#lumia_enable &
+
+	# Lumia drivers enable
+	/bin/vendor/Lumia_drivers_enable.sh &
+
+	if [ $WIFI_BT_MODULE -eq $AZUREWAVE_MODULE ]; then
+		echo "AZUREWAVE_MODULE: Toggling GPIOs to reset Bluetooth"
+        	#Bluetooth firmware loading p1
+        	#BGR3-1346: Hard reset Azurewave module before initialization on boot up, to avoid chip hang issue(refer ticket for details)
+			gpio_test -n 248 -o 1
+			toggle_and_reset_azurewave_pcie
+			reset_result=$?
+			if [ $reset_result -eq 0 ]; then
+				echo "AZUREWAVE_MODULE: PCIe reset and device detection successful"
+			else
+				echo "AZUREWAVE_MODULE: PCIe reset failed after all retry attempts (return code: $reset_result)"
+			fi
+	elif [ $WIFI_BT_MODULE -eq $REALTEK_MODULE ]; then
+		echo "REALTEK_MODULE: insmoding hci_uart driver"
+		insmod /lib/modules/misc/hci_uart.ko
+		echo "REALTEK_MODULE: Toggling GPIOS to reset bluetooth"
+		gpio_test -n 235 -o 0
+		sleep 1
+		echo "REALTEK_MODULE: Attaching Realtek module interface to userspace"
+		gpio_test -n 235 -o 1
+		sleep .25
+		rtk_hciattach -n -s 115200 ttyTHS2 rtk_h5 &
+		# Delaying by 5 secs for initializing rt_bt
+                sleep 5
+	elif [ $WIFI_BT_MODULE -eq $INFINEON_MODULE ]; then
+		echo "INFINEON_MODULE: Toggling GPIOs to reset Bluetooth"
+		#Bluetooth firmware loading p1
+		gpio_test -n 248 -o 1
+		gpio_test -n 235 -o 0
+		gpio_test -n 235 -o 1
+		sleep 1
+	fi
+
+	# If the PulseAudio config directory exists, remove any stale runtime lock files to prevent startup hang
+	[ -d /root/.config/pulse ] && rm -f -- /root/.config/pulse/*-runtime.tmp
+
+	#Starting Pulse Audio Daemon
+	/usr/bin/pulseaudio --start
+        if [ $? -eq 0 ]; then
+                echo "++++pulseaudio daemon started++++"
+        else
+                echo "++++pulseaudio daemon not started++++"
+        fi
+
+	if [ $WIFI_BT_MODULE -eq $AZUREWAVE_MODULE ]; then
+		echo "AZUREWAVE_MODULE: Loading Bluetooth Firmware"
+		#bluetooth firmware loading p2
+		/bin/vendor/brcm_patchram --patchram /lib/firmware/cypress/BCM4356A2_25_10_2024_001.003.015.0124.0418.hcd -d --baudrate 3000000 --use_baudrate_for_download --no2bytes --enable_hci /dev/ttyTHS2 &
+		#sleep 10
+
+		#if [ $? -ne 0 ]; then
+                	#echo "bluetooth firmware loading failed"
+			#status=0
+		#else
+			#status=1
+			#timeout 2 hciattach /dev/ttyTHS2 any 115200 flow
+			#echo "bluetooth firmware loaded successfully"
+        	#fi
+	fi
+
+	if [ $WIFI_BT_MODULE -eq $INFINEON_MODULE ]; then
+		echo "INFINEON_MODULE: Loading Bluetooth Firmware"
+		#bluetooth firmware loading p2
+		/bin/vendor/brcm_patchram --patchram /lib/firmware/cypress_In/BCM4359D0_004.001.016.0241.0274.1XA.dAnt.hcd -d --baudrate 115200 --use_baudrate_for_download --no2bytes --enable_hci /dev/ttyTHS2 &
+		#sleep 10
+
+		if [ $? -ne 0 ]; then
+			echo "bluetooth firmware loading failed"
+			status=0
+		else
+			status=1
+			#timeout 2 hciattach /dev/ttyTHS2 any 115200 flow
+			#echo "bluetooth firmware loaded successfully"
+		fi
+	fi 
+
+	#AUDIO
+	/etc/init.d/amixer.sh &
+
+	fru_check
+	if [ $? -ne 0 ]; then
+		echo "Fru Failed";
+	fi;
+
+	#Toggling LED's for indication
+	echo none > /sys/class/leds/bag_left_red/trigger
+	echo 16 > /sys/class/leds/bag_left_green/brightness
+
+	#AON
+	#i2cset -y -f 1 0x34 0x03 0x01
+
+	#if [ $WIFI_BT_MODULE -eq $AZUREWAVE_MODULE ]; then
+	#	echo "AZUREWAVE_MODULE: hciattach for Bluetooth"
+		#bluetooth firmware loading p3
+	#	if [ $status -eq 1 ]; then
+			#timeout 2 hciattach /dev/ttyTHS2 any 115200 flow
+			#if [ $? -ne 0 ]; then
+			#	echo "hciattach failed"
+			#else
+			#	echo "hciattach successful"
+			#	echo "bluetooth firmware loaded successfully"
+			#fi
+	#	else
+	#		echo "bluetooth firmware loading failed"
+	#	fi
+	#fi
+
+	if [ $WIFI_BT_MODULE -eq $INFINEON_MODULE ]; then
+		echo "INFINEON_MODULE: hciattach for Bluetooth"
+		#bluetooth firmware loading p3
+		if [ $status -eq 1 ]; then
+			timeout 2 hciattach /dev/ttyTHS2 any 115200 flow
+			if [ $? -ne 0 ]; then
+				echo "hciattach failed"
+			else
+				echo "hciattach successful"
+				echo "bluetooth firmware loaded successfully"
+			fi
+		else
+			echo "bluetooth firmware loading failed"
+		fi
+	fi
+
+	if [ $WIFI_BT_MODULE -eq $AZUREWAVE_MODULE ]; then
+		echo "AZUREWAVE_MODULE: Loading Wifi Drivers"
+		#wifi driver loading
+		insmod /lib/modules/misc/compat.ko
+		insmod  /lib/modules/misc/cfg80211.ko
+		insmod  /lib/modules/misc/brcmutil.ko
+		insmod  /lib/modules/misc/brcmfmac.ko debug=0x100000
+	elif [ $WIFI_BT_MODULE -eq $REALTEK_MODULE ]; then
+		echo "echo REALTEK_MODULE: Loading Wifi Driver"
+		insmod /lib/modules/$(uname -r)/kernel/net/wireless/cfg80211.ko
+		insmod /lib/modules/misc/rtl8822ce_wifi_module.ko rtw_drv_log_level=2
+	elif [ $WIFI_BT_MODULE -eq $INFINEON_MODULE ]; then
+		echo "INFINEON_MODULE: Loading Wifi Drivers"
+		#wifi driver loading
+		insmod /lib/modules/misc/infineon_wifi/compat.ko
+		insmod  /lib/modules/misc/infineon_wifi/cfg80211.ko
+		insmod  /lib/modules/misc/infineon_wifi/brcmutil.ko
+		insmod  /lib/modules/misc/infineon_wifi/brcmfmac.ko debug=0x100000
+	fi
+
+	if [ $WIFI_BT_MODULE -eq $REALTEK_MODULE ]; then
+		echo "Rename wlan1 to secondary"
+		is_interface_up
+	fi
+        #sleep 10
+        #nmcli device wifi hotspot ssid NTDI_B3 password 12345678
+        #sleep 15
+        #sync
+	## Auto_run enable with 5mins delay before script starts 0x80
+	## GPS enabled 0x02
+	## 4hrs test case
+        #/thermal_app/script/thermal_startup_2.sh 28:D0:EA:DB:4A:B5 0xC2 &
+	if [ "$WD_DISABLE" = true ]; then
+		# BSP - Disable WatchDog, To enable comment below line
+		i2cset -f -y 0x1 0x34 0xa 0x0
+		systemctl start ssh
+		echo "BSP WatchDog Disable = $WD_DISABLE"
+	else
+		#BGR3-87,BGR3-72
+		#Enable WatchDog
+		i2cset -f -y 0x1 0x34 0xa 0x1
+		# Set watchdog time to maximum 25 minutes
+		i2cset -f -y 0x1 0x34 0x8 0xff
+		# Kick and restart Watchdog timer
+		i2cset -f -y 0x1 0x34 0x4 1
+		echo "ND_OS WatchDog Disable = $WD_DISABLE"
+	fi
+
+	systemctl stop ssh
+	systemctl disable ssh
+	/etc/init.d/inet_interfaces_config.sh &
+
+	timedatectl set-ntp false
+
+	# Update speaker if required
+	update_speaker
+
+	echo "##### B3 Init script E $(date +"%c %T.%N") #####"
+}
+
+do_stop () {
+	pgrep -x boot_log | xargs kill -9
+	pgrep -x lumia_enable | xargs kill -9
+	echo "Stopping the startup service"
+}
+
+case "$1" in
+	start|"")
+		do_start
+		touch /dev/shm/ntdi_bag3.done
+		;;
+	restart|reload|force-reload)
+		echo "Error: argument '$1' not supported" >&2
+		exit 3
+		;;
+	stop)
+		do_stop
+		;;
+	status)
+		# No-op
+		;;
+	*)
+		echo "Usage: startup.sh [start|stop]" >&2
+		exit 3
+		;;
+esac

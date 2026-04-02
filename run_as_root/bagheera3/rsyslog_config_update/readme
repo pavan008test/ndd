@@ -1,0 +1,3 @@
+DT-1218: For majority of the issues, syslogs analysis is very critical to get the complete understanding. However, in today’s architecture, we only have latest few days of syslogs and getting those syslogs is also getting delayed.
+
+To get away with above problem, we would like syslogs also to be treated as one more service from logs storage perspective and save all the syslogs so that whenever we request for device logs, we are expecting syslogs also to be available for the previous / same day.

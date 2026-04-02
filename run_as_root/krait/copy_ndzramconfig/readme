@@ -1,0 +1,1 @@
+KRT2-516:This RAR task to support for 512MB of ZRAM(Zipped RAM/ ~50 % Compression Ration ) based SWAP in D-215  for expanding  effective RAM by 256 MB to overcome low memory and out of memory conditions.

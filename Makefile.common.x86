@@ -1,0 +1,6 @@
+
+CXX := g++ -std=c++11
+CC := gcc
+CFLAGS += -g -DBAGHEERA2 -DLIBSYS_API_EXTENSION
+LDFLAGS += -lpthread -lrt -L$(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/x86/lib -liniparser -ljansson -lsqlite3 -lzmq -lavutil -lavcodec -ldw -lcurl -lcrypto -lssl -L$(PROTOBUF)/rivian/lib
+C_INCLUDES += $(ND_CORE_LIB_ROOT)/cpp/inc $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/common/inc $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/bagheera/inc $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/x86/inc $(ND_CORE_LIB_ROOT)/cpp/inc/bagheera2 $(PROTOBUF)/rivian/inc $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/common/lib_src/zipper/zipper

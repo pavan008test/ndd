@@ -1,0 +1,10 @@
+#BR-49:Adding CODEOWNERS file to add dev-sw-leads as reviwers by default
+
+# For the entire repository
+*       @subbar-nd @kasanir-nd @arunthota-nd @Chaitanyag-nd @shashank-nd @karan-nd @shravank-nd @Ajayk-nd
+
+/nd_bt/* @SunilKS-nd
+
+/nd_sam/* @SunilKS-nd
+
+/installer_app/* @SunilKS-nd

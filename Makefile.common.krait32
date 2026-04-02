@@ -1,0 +1,20 @@
+COMPILER_BASE=$(BASE)/../cross_compiler
+
+SYSROOT := $(COMPILER_BASE)/krait/lib32-qmmf-sdk/git-r0/lib32-recipe-sysroot
+SYSROOT_NATIVE := $(COMPILER_BASE)/krait/lib32-qmmf-sdk/git-r0/recipe-sysroot-native
+COMPILER_PATH := $(SYSROOT_NATIVE)/usr/bin/arm-oe-linux-gnueabi
+CXX := $(COMPILER_PATH)/arm-oe-linux-gnueabi-g++
+CC := $(COMPILER_PATH)/arm-oe-linux-gnueabi-gcc
+OPENSSL_LIB_PATH := $(BASE)/../nd_core_utils/nd_thirdparty_lib/krait/packages/openssl_1.1.1v/arm32/lib
+#PROTOBUF_BASE := $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/common/protobuf/krait_1
+KVS_LIB_PATH := $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/krait/packages/kvs_sdk/lib
+
+C_INCLUDES += $(ND_CORE_LIB_ROOT)/cpp/inc/krait
+C_INCLUDES += $(PROTOBUF)/krait_1/inc $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/krait/inc $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/krait/inc/jansson $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/krait/inc/boost_1_70_0
+C_INCLUDES += $(COMPILER_BASE)/krait/recipe-sysroot-native/usr/include
+CFLAGS += -march=armv7-a -mfloat-abi=hard -D_GLIBCXX_USE_CXX11_ABI=0 
+CFLAGS += -DKRAIT -DLIBSYS_API_EXTENSION -DSP_KEYSTORE_HANDLE --sysroot=$(SYSROOT)
+CFLAGS += -fstack-protector-strong -D_FORTIFY_SOURCE=2 -Wa,--noexecstack -Wformat -Wformat-security -Werror=format-security
+LDFLAGS += --sysroot=$(SYSROOT) -march=armv7-a -mfloat-abi=hard
+LDFLAGS += -L$(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/krait/lib/arm32 -ldw -ldl -lelf -L$(COMPILER_BASE)/krait/rootfs/lib -lpthread-2.26 -L$(COMPILER_BASE)/krait/rootfs/usr/lib -luuid
+LDFLAGS += $(KVS_LIB_PATH)/libcurl.so $(OPENSSL_LIB_PATH)/libssl.so.1.1 $(OPENSSL_LIB_PATH)/libcrypto.so.1.1 -liniparser -ljansson -lsqlite3 -lzmq -ldw -lg726 -ltinyalsa

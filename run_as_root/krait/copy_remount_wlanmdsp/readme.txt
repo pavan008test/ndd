@@ -1,0 +1,1 @@
+Upgrade Wi-Fi firmware to fix WCN GP_Fault1 by running copy_remount_wlanmdsp

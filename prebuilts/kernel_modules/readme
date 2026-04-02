@@ -1,0 +1,16 @@
+README
+======
+
+All rights reserved to NETRADYNE INC
+
+Kernel_modules: This folder consists of source code and kernel module files arranged for build system.
+nd.conf: Shall be placed at /etc/modules-load.d/ folder for OS to pickup all modules being specified in the file.
+
+kernel_modules/<module_name>/build : shall hold the build
+kernel_modules/<module_name>/code : shall hold the code
+
+for bagheera2
+
+kernel_modules/bagheera2/nd.conf : Shall be placed at /etc/modules-load.d/ folder for OS to pickup all modules being specified in the file.
+kernel_modules/bagheera2/<module_name>/build : shall hold the build
+kernel_modules/bagheera2/<module_name>/code : shall hold the code

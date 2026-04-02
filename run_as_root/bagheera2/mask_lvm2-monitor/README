@@ -1,0 +1,3 @@
+Disable/mask LVM service and study the side effects/improvements   
+
+This is targeted to resolve RED LED blink issue seen in devices ( with sdcard problem ? ).

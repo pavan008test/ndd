@@ -1,0 +1,14 @@
+[Unit]
+Description=NDService-py_reboot_recovery
+
+[Service]
+Type=oneshot
+TimeoutStartSec=5
+TimeoutStopSec=5
+KillMode=mixed
+SendSIGKILL=yes
+
+ExecStart=/home/ubuntu/.nddevice/py3.5_reboot_recovery.sh
+
+[Install]
+WantedBy=multi-user.target

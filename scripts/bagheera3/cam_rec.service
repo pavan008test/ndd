@@ -1,0 +1,22 @@
+[Unit]
+Description=NDService-cam_rec
+After=console.service ntdi_bag3.service
+Wants=console.service ntdi_bag3.service
+
+
+[Service]
+TimeoutStartSec=5
+TimeoutStopSec=5
+KillMode=mixed
+SendSIGKILL=yes
+OOMScoreAdjust=-1000
+#ExecStartPre=/bin/sleep 2
+
+ExecStart=/home/ubuntu/bin/wrapper_service.sh cam_rec
+
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=graphical.target
+

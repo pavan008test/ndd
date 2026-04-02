@@ -1,0 +1,23 @@
+[Unit]
+Description=NDService-Bagheera
+After=dcam.service qmmf-server.service systemrw.mount leprop.service speed.service
+Wants=qmmf-server.service systemrw.mount
+
+[Service]
+Type=simple
+TimeoutStartSec=5
+TimeoutStopSec=5
+KillMode=mixed
+SendSIGKILL=yes
+
+ExecStartPre=/bin/sleep 2
+
+ExecStart=/home/ubuntu/bin/wrapper_service.sh bagheera
+ExecStop=/home/ubuntu/.nddevice/latest/service/bagheera/logcat_dump_bagheera.sh
+
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target 
+

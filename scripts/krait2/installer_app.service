@@ -1,0 +1,18 @@
+[Unit]
+Description=NDService-installer_app
+
+After=clik.service qmmf-server.service systemrw.mount leprop.service
+Wants=qmmf-server.service systemrw.mount
+
+[Service]
+TimeoutStartSec=1
+TimeoutStopSec=5
+KillMode=mixed
+SendSIGKILL=yes
+
+ExecStart=/home/ubuntu/bin/wrapper_service.sh installer_app
+Restart=always
+RestartSec=1s
+
+[Install]
+WantedBy=multi-user.target

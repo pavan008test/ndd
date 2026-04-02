@@ -1,0 +1,7 @@
+This task is to do initial configuration for SC7 feature which is a standy mode feature.
+
+Installing a standby_setup script into the root crontab to execute at reboot. This standby_setup initializes with mkdir in /dev/shm, touch necessary files in /dev/shm
+
+These are essential to start functioning of SC7 feature which comes with new service nd_suspendresume.service
+
+Since this is installed to crontab @reboot, for the first time during update, this standby_setup script is needed to be executed in runasroot during the update so that when new service is started it can find the initializations.

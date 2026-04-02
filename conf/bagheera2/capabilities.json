@@ -1,0 +1,15 @@
+{
+    "accessories": [
+        "BLE_BUTTON",
+        "VBUS",
+        "DHUBX"
+    ],
+    "features": {
+        "DIAGNOSTICS": {
+            "custom_diagnostics": true
+        },
+        "ELD": {
+            "vdr_troubleshoot": true
+        }
+    }
+}

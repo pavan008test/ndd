@@ -1,0 +1,8 @@
+Update contents of /etc/NetworkManager/conf.d/default-wifi-powersave-on.conf as 
+[connection]
+wifi.powersave = 2
+
+jira-id: https://netradyne.atlassian.net/browse/DT-2800
+https://netradyne.atlassian.net/browse/BGR3-1359
+
+And the same conf is present from 13.0.27 OS 

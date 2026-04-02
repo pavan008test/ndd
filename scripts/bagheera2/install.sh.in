@@ -1,0 +1,718 @@
+#!/bin/bash
+
+uuencode=1
+binary=0
+
+Print_Help()
+{
+    cat << EOH >&2
+ $0 bagheera install version v:0.0.3
+
+ 1) Getting help or info about $0 :
+  $0 --help   Print this message
+  .......................................................................
+
+  $0 --deviceId <deviceId>  [additional arguments to embedded script]
+  with following options (in that order)
+  -deviceId | --deviceId <deviceId>    	Driver identification
+  -sessionId | --sessionId <sessionId>  Session Id
+  -ssid | --ssid <wifi ssid> 		Wifi HotSpot SSID 
+  -ssidPassword | --ssidPassword        Wifi SSID password
+  -lanecal | --lanecal	 [keep|delete]		laneCal.json to clean on reboot, default delete 
+  -saveMP4 | --saveMP4	 [keep|delete]		saveMP4 folder to clean on reboot default delete
+  -device  | --deviceType 		specify the device type (default is bagheera)
+  -deviceSub | --deviceSubType		specify the device sub (type default is dvt2)
+  -vehClass| --vehClass  <vehClass>     used by the analytics engine to determine the vehicle class to pick the correct lane cal parameters
+  -profileName | --profileName                  LTE carrier profile name
+  -apnName | --apnName                          LTE carrier apn name
+
+EOH
+}
+
+#untar bootstrap
+function untar_payload()
+{
+	echo -e "Setting up the bootstrap /home/ubuntu/.nddevice \n ------------------------------------------------------------"
+	match=$(grep --text --line-number '^BOOTSTRAP_TAR_ZIP:$' $0 | cut -d ':' -f 1)
+	payload_start=$((match + 1))
+	if [[ $binary -ne 0 ]]; then
+		tail -n +$payload_start $0 | tar -xzvf - -C /home/ubuntu/.nddevice 
+	fi
+	if [[ $uuencode -ne 0 ]]; then
+		tail -n +$payload_start $0 | uudecode | tar -xzvf - -C /home/ubuntu/.nddevice
+	fi
+	
+	#move wrapper to bin folder
+	echo -e "Moving wrapper to /home/ubuntu/bin folder"
+	mv /home/ubuntu/.nddevice/wrapper_* /home/ubuntu/bin/.
+	#check if lanecal is provided
+	if [ "$lanecal" == "keep" ]; then
+		#if lanecal is keep than we will add a default one to /home/ubuntu/config/
+	
+		echo -e "Moving laneCal.json to /home/ubuntu/config/ as keep is enabled for it"
+		mv /home/ubuntu/.nddevice/laneCal.json /home/ubuntu/config/.
+
+	fi 
+	add_nd_service_script
+	add_system_upgrade_script
+	add_lte_flash_script
+	add_isp_flash_script
+        add_apn_config_binary
+	add_lte_disable_enable_script
+        add_get_isp_ver_and_temp
+        add_obd_script_and_wrapper_script
+	sync
+	echo -e "Setup of bootstrap /home/ubuntu/.nddevice is completed \n ----------------------------------------------------- "
+}
+
+#delete default setup from shield
+function delete_default_setup()
+{
+	echo "Going to delete the default setup"
+	#delete autocam .nddevice  bagheera_service service
+        sudo rm -rf /home/ubuntu/.nddevice
+        sudo rm -rf /home/ubuntu/autocam
+        sudo rm -rf /home/ubuntu/config
+        sudo rm -rf /home/ubuntu/work
+        sudo rm -rf /home/ubuntu/bagheera_service
+        sudo rm -rf /home/ubuntu/service
+	
+	#delete wrapper from the bin folder
+	sudo rm /home/ubuntu/bin/wrapper_*
+	echo "Default setup deleted ..."
+}
+
+#Create user and make folder
+function add_user()
+{
+	echo "Adding user ..."
+	#########Create user############
+	sudo userdel -r iriscli
+	sudo useradd -m iriscli
+	sudo mkdir -m 777 /home/iriscli/ND_INPUT
+	sudo mkdir -m 777 /home/iriscli/ND_OUTPUT
+	chmod 777 
+	################################
+	echo "Adding user: done"
+
+}
+#Add new files, folder and configuration
+function add_new_files_conf()
+{
+		
+	echo "Going to Add new configuration"
+	folder_home="/home/ubuntu/.nddevice"
+	folder_conf="/home/ubuntu/config"
+	folder_saveMP4="/home/iriscli/saveMP4"
+	
+	bashrc_file="/home/ubuntu/.bashrc"
+	#create folder /home/ubuntu/.nddevice
+	if [ ! -d "$folder_home" ]; then
+		mkdir "$folder_home"
+		echo -e "\t$folder_home is created"
+	fi 
+	#Add new folder 
+        [ -d /home/ubuntu/autocam ] || mkdir /home/ubuntu/autocam
+        [ -d /home/ubuntu/config ] || mkdir /home/ubuntu/config
+        [ -d /home/ubuntu/bin ] || mkdir /home/ubuntu/bin
+        [ -d /home/ubuntu/work ] || mkdir /home/ubuntu/work
+        [ -d /home/ubuntu/bagheera_service ] || mkdir /home/ubuntu/bagheera_service
+        [ -d /home/ubuntu/service ] || mkdir /home/ubuntu/service
+	
+	#Add Environment variable 
+	
+	#if there is any default environment the delete it and add below
+	#export ND_INPUT_PATH=/home/iriscli/ND_INPUT
+        #export ND_OUTPUT_PATH=/home/iriscli/ND_OUTPUT
+        #export ND_DEVICE_REL_PATH=/home/ubuntu/.nddevice
+        #export ND_CONFIG_PATH=$ND_DEVICE_REL_PATH/latest/nd_config.ini
+	echo -e "\tEnvironment variables are added"
+
+	sed -i 's/.*ND_INPUT_PATH.*$//' $bashrc_file	
+	sed -i 's/.*ND_OUTPUT_PATH.*$//' $bashrc_file	
+	sed -i 's/.*ND_DEVICE_REL_PATH.*$//' $bashrc_file		
+	sed -i 's/.*ND_CONFIG_PATH.*$//' $bashrc_file		
+	
+	echo "export ND_INPUT_PATH=/home/iriscli/ND_INPUT" >> $bashrc_file
+	echo "export ND_OUTPUT_PATH=/home/iriscli/ND_OUTPUT" >> $bashrc_file
+	echo "export ND_DEVICE_REL_PATH=/home/ubuntu/.nddevice" >> $bashrc_file
+	echo "export ND_CONFIG_PATH=\$ND_DEVICE_REL_PATH/latest/nd_config.ini" >> $bashrc_file
+
+	#Alias
+	
+	#alias for navigation 
+	echo "alias gi='cd /home/iriscli/ND_INPUT/'" >> $bashrc_file
+	echo "alias go='cd /home/iriscli/ND_OUTPUT/'" >> $bashrc_file
+	echo "alias gl='cd /home/ubuntu/.nddevice/log'" >> $bashrc_file
+	echo "alias gh='cd /home/ubuntu/.nddevice'" >> $bashrc_file
+
+	#alias for grep
+	alias greps='grep _STATE /home/iriscli/ND_INPUT/*.STATE'
+
+	#add new configuration
+
+	#Create /home/ubuntu/config folder
+	if [ ! -d "$folder_conf" ]; then
+		mkdir "$folder_conf"
+	fi 
+
+	echo  "Going to create a deviceconfig.ini"
+	#Go to /home/ubuntu/config and create nd_config.ini
+	#Sample:-
+
+        #       [identity]
+        #       deviceId = NDPRAVEEN
+        #      sessionId = NDPRAVEEN
+	if [ -f "$folder_conf/deviceconfig.ini" ]; then
+		rm "$folder_conf/deviceconfig.ini"
+	fi
+
+	if [ ! -f "$folder_conf/deviceconfig.ini" ]; then
+		touch "$folder_conf/deviceconfig.ini"
+	fi
+
+	#identity	
+	echo -e "\t[identity]\n:::\tdeviceId = $deviceId\tsessionId = $sessionId \tdeviceType =$deviceType\tdeviceSubType =$deviceSubType\n"
+	echo "[identity]" > "$folder_conf/deviceconfig.ini"
+	echo "deviceId = $deviceId" >> "$folder_conf/deviceconfig.ini"
+	echo "sessionId = $sessionId" >> "$folder_conf/deviceconfig.ini"
+	#deviceType
+	echo "deviceType = $deviceType">> "$folder_conf/deviceconfig.ini"
+	#deviceSubType
+	echo "deviceSubType = $deviceSubType">> "$folder_conf/deviceconfig.ini"
+	echo -e "\n\n" >> "$folder_conf/deviceconfig.ini"
+        #vehicle
+	echo -e "\t[vehicle]\nvehClass = $vehClass"
+	echo "[vehicle]" >> "$folder_conf/deviceconfig.ini"
+	echo "vehClass = $vehClass" >> "$folder_conf/deviceconfig.ini"
+	echo -e "\n\n" >> "$folder_conf/deviceconfig.ini"
+
+	
+	#cleanup	
+	echo -e "\t[cleanup]\nlanecal = $lanecal\nsaveMP4 = $saveMP4"
+	echo "[cleanup]" >> "$folder_conf/deviceconfig.ini"
+	echo "lanecal = $lanecal" >> "$folder_conf/deviceconfig.ini"
+	echo "saveMP4 = $saveMP4" >> "$folder_conf/deviceconfig.ini"
+
+	#Going to create folder 
+	echo -e "\tGoing to create $folder_saveMP4 need sudo permission..."
+	sudo mkdir "$folder_saveMP4"
+	sudo chmod 777 "$folder_saveMP4"	
+	echo "New configuration added successfully"
+
+
+}
+
+function add_obd_script_and_wrapper_script(){
+       
+        echo "Adding obd_fm_upgrade.sh script..."
+        sudoer_file="/etc/sudoers.d/ubuntu_admin"
+        if [ -f $sudoer_file ]; then
+                echo "File Exist"
+                sudo sh -c  "sed -i 's/.*wrapper_script.sh.*$//' $sudoer_file ; echo  'ubuntu ALL=NOPASSWD:/usr/bin/wrapper_script.sh' >> $sudoer_file"
+                sudo sh -c  "sed -i 's/.*home*wrapper_script.sh.*$//' $sudoer_file ; echo  'ubuntu ALL=NOPASSWD:/home/ubuntu/bin/wrapper_script.sh' >> $sudoer_file"
+                sudo sh -c  "sed -i 's/.*obd_fm_upgrade.*$//' $sudoer_file ; echo  'ubuntu ALL=NOPASSWD:/usr/bin/obd_fm_upgrade.sh' >> $sudoer_file"
+                sudo sh -c  "sed -i 's/.*home*obd_fm_upgrade.*$//' $sudoer_file ; echo  'ubuntu ALL=NOPASSWD:/home/ubuntu/bin/obd_fm_upgrade.sh' >> $sudoer_file"
+
+
+        else
+                echo "File Not Exist"
+                #sudo chmod 700 $sudoer_file
+                sudo sh -c "echo  'ubuntu ALL=NOPASSWD:/usr/bin/wrapper_script.sh' >> $sudoer_file"
+                sudo sh -c "echo  'ubuntu ALL=NOPASSWD:/home/ubuntu/bin/wrapper_script.sh' >> $sudoer_file"
+                sudo sh -c "echo  'ubuntu ALL=NOPASSWD:/usr/bin/obd_fm_upgrade.sh' >> $sudoer_file"
+                sudo sh -c "echo  'ubuntu ALL=NOPASSWD:/home/ubuntu/bin/obd_fm_upgrade.sh' >> $sudoer_file"
+        fi
+        sudo chmod 440 $sudoer_file
+
+
+}
+
+       
+
+
+function add_get_isp_ver_and_temp(){
+
+        echo "Adding get_isp_ver_and_temp too sudoer list"
+
+        sudoer_file="/etc/sudoers.d/ubuntu_admin"
+        out_temp_bin_file="/bin/get_isp_ver_and_temp"
+        lte_gps_sample_app_bin_file="/bin/lte_gps_sample_app"
+
+        if [ ! -f $out_temp_bin_file ]; then
+                echo "$out_temp_bin_file  file not exist"
+                exit 0
+        fi
+
+        if [ ! -f $lte_gps_sample_app_bin_file ]; then
+                echo "$lte_gps_sample_app_bin_file  file not exist"
+                exit 0
+        fi
+
+        if [ -f $sudoer_file ]; then
+                echo "File Exist"
+                sudo sh -c  "sed -i 's/.*get_isp_ver_and_temp.*$//' $sudoer_file ; echo  'ubuntu ALL=NOPASSWD:/bin/get_isp_ver_and_temp' >> $sudoer_file"
+                sudo sh -c  "sed -i 's/.*lte_gps_sample_app.*$//' $sudoer_file ; echo  'ubuntu ALL=NOPASSWD:/bin/lte_gps_sample_app' >> $sudoer_file"
+
+        else
+                echo "File Not Exist"
+                #sudo chmod 700 $sudoer_file
+                sudo sh -c "echo  'ubuntu ALL=NOPASSWD:/bin/get_isp_ver_and_temp' >> $sudoer_file"
+                sudo sh -c "echo  'ubuntu ALL=NOPASSWD:/bin/lte_gps_sample_app' >> $sudoer_file"
+        fi
+        sudo chmod 440 $sudoer_file
+
+        echo "Adding get_isp_ver_and_temp too sudoer list done"
+}
+
+#add nd_service.sh for managing the services
+function add_nd_service_script()
+{
+	echo "Adding nd_service.sh script..."
+	sudo cp /home/ubuntu/.nddevice/nd_service.sh /usr/bin/.
+
+	sudoer_file="/etc/sudoers.d/ubuntu_admin"
+	if [ -f $sudoer_file ]; then
+		echo "File Exist"
+		sudo sh -c  "sed -i 's/.*nd_service.*$//' $sudoer_file ; echo  'ubuntu ALL=NOPASSWD:/usr/bin/nd_service.sh' >> $sudoer_file"
+	else
+		echo "File Not Exist"
+		#sudo chmod 700 $sudoer_file
+		sudo sh -c "echo  'ubuntu ALL=NOPASSWD:/usr/bin/nd_service.sh' >> $sudoer_file"
+	fi
+	sudo chmod 440 $sudoer_file
+
+	echo "Adding nd_service.sh script done"
+}
+
+#add system_upgrade.sh as sudoer
+function add_system_upgrade_script()
+{
+	echo "Adding system_upgrade script..."
+
+	sudoer_file="/etc/sudoers.d/ubuntu_admin"
+	if [ -f $sudoer_file ]; then
+		echo "File Exist"
+		sudo sh -c  "sed -i 's/.*system_upgrade.*$//' $sudoer_file ; echo  'ubuntu ALL=NOPASSWD:/usr/bin/system_upgrade.sh' >> $sudoer_file"
+	else
+		echo "File Not Exist"
+		#sudo chmod 700 $sudoer_file
+		sudo sh -c "echo  'ubuntu ALL=NOPASSWD:/usr/bin/system_upgrade.sh' >> $sudoer_file"
+	fi
+	sudo chmod 440 $sudoer_file
+
+	echo "Adding system_upgrade script done"
+}
+
+
+#add isp_fm_upgrade.sh for flashing firmware
+function add_isp_flash_script()
+{
+	echo "Adding isp_fm_upgrade.sh script..."
+	sudo cp /image_upgrade/isp/ov491_isp_upgrade.sh /usr/bin/isp_fm_upgrade.sh
+
+	sudoer_file="/etc/sudoers.d/ubuntu_admin"
+	if [ -f $sudoer_file ]; then
+		echo "File Exist"
+		sudo sh -c  "sed -i 's/.*isp_fm_upgrade.*$//' $sudoer_file ; echo  'ubuntu ALL=NOPASSWD:/usr/bin/isp_fm_upgrade.sh' >> $sudoer_file"
+	else
+		echo "File Not Exist"
+		#sudo chmod 700 $sudoer_file
+		sudo sh -c "echo  'ubuntu ALL=NOPASSWD:/usr/bin/isp_fm_upgrade.sh' >> $sudoer_file"
+	fi
+	sudo chmod 440 $sudoer_file
+
+	echo "Adding isp_fm_upgrade.sh script done"
+}
+
+#add lte_fm_upgrade.sh for flashing firmware
+function add_lte_flash_script()
+{
+	echo "Adding lte_fm_upgrade.sh script..."
+	sudo cp /home/ubuntu/.nddevice/lte_fm_upgrade.sh /usr/bin/.
+
+	sudoer_file="/etc/sudoers.d/ubuntu_admin"
+	if [ -f $sudoer_file ]; then
+		echo "File Exist"
+		sudo sh -c  "sed -i 's/.*lte_fm_upgrade.*$//' $sudoer_file ; echo  'ubuntu ALL=NOPASSWD:/usr/bin/lte_fm_upgrade.sh' >> $sudoer_file"
+	else
+		echo "File Not Exist"
+		#sudo chmod 700 $sudoer_file
+		sudo sh -c "echo  'ubuntu ALL=NOPASSWD:/usr/bin/lte_fm_upgrade.sh' >> $sudoer_file"
+	fi
+	sudo chmod 440 $sudoer_file
+
+	echo "Adding lte_fm_upgrade.sh script done"
+}
+
+#add lte disable/enable script 
+function add_lte_disable_enable_script()
+{
+	echo "Adding lte disable/enable script..."
+	sudoer_file="/etc/sudoers.d/ubuntu_admin"
+	if [ -f $sudoer_file ]; then
+		echo "File Exist"
+		sudo sh -c  "sed -i 's/.*disable_lte_turn_wifi_on.*$//' $sudoer_file ; echo  'ubuntu ALL=NOPASSWD:/home/ubuntu/bin/disable_lte_turn_wifi_on.sh' >> $sudoer_file"
+		sudo sh -c  "sed -i 's/.*disable_wifi_turn_on_lte.*$//' $sudoer_file ; echo  'ubuntu ALL=NOPASSWD:/home/ubuntu/bin/disable_wifi_turn_on_lte.sh' >> $sudoer_file"
+	else
+		echo "File Not Exist"
+		#sudo chmod 700 $sudoer_file
+		sudo sh -c "echo  'ubuntu ALL=NOPASSWD:/home/ubuntu/bin/disable_lte_turn_wifi_on.sh' >> $sudoer_file"
+		sudo sh -c "echo  'ubuntu ALL=NOPASSWD:/home/ubuntu/bin/disable_wifi_turn_on_lte.sh' >> $sudoer_file"
+	fi
+	sudo chmod 440 $sudoer_file
+
+	echo "Adding lte disable/enable script done"
+}
+
+function add_apn_config_binary()
+{
+	echo "Adding APN config ..."
+	#Apn Configuration
+ 	echo "profileName=\"$profileName\"" >> /home/ubuntu/.nddevice/latest/service/sierra/config.txt
+        echo "apnName=\"$apnName\"" >> /home/ubuntu/.nddevice/latest/service/sierra/config.txt
+        mkdir -p /home/ubuntu/config/conn_mgr
+ 	echo "export profileName=\"$profileName\"" >> /home/ubuntu/config/conn_mgr/config.txt
+        echo "export apnName=\"$apnName\"" >> /home/ubuntu/config/conn_mgr/config.txt
+	sudo cp /home/ubuntu/.nddevice/latest/service/sierra/journald.conf /etc/systemd/journald.conf
+	cp /home/ubuntu/.nddevice/latest/service/sierra/disable_* /home/ubuntu/bin
+	echo "Adding APN config done"
+}
+
+#add service
+function add_service()
+{
+	echo "Adding BAGHEERA service ..."
+	/usr/bin/nd_service.sh -c install -n bagheera -p /home/ubuntu/.nddevice/latest/service/
+
+	echo "Adding service: done"
+}
+#Install new required packages
+function install_new_packages()
+{
+	
+	#install package
+	echo "Installing missing packges"
+	pip install --upgrade --force-reinstall --user psutil
+	echo "Installing missing packages DONE"
+}
+
+#create SSID with wifi
+function configure_wifi_ssid()
+{
+	#connect to wifi
+	echo "....................................................."
+	echo "Removed existing WiFi connections"
+	sudo rm /etc/NetworkManager/system-connections/*
+	echo "....................................................."
+	echo "Adding wifi configuration ($ssid)...."
+	echo "....................................................."
+	count=0
+	while true
+	do
+		read -p "        Ensure you have setup the '$ssid' on Nexus 5X with password '$ssidPassword' Press Enter Key  to continue" ch
+
+		count=$((count+1))
+		sudo nmcli d wifi connect $ssid password $ssidPassword
+		if [ $? -eq 0 ] ; then
+			echo -e "WIFI SSID Configuration succeeded"
+			break
+		fi
+		#Error message
+		echo -e "Your WIFI SSID '$ssid' on Nexus 5X is not up or Password '$ssidPassword' is wrong."
+
+		if [ $count -gt 3 ]; then 
+			echo -e "Disable / Enable wifi on NVIDIA Shield TV, Check Tethering & portable hotspot in Nexus 5X"
+		fi
+		read -p "        Please check and press enter to continue..." ans
+	done
+}
+
+function cron_setup()
+{
+	cron_file="/home/ubuntu/.nddevice/conf.cron"
+	if [ ! -f "$cron_file" ]; then
+		touch "$cron_file"
+	fi
+
+	echo "*/1 *  * * * export PATH=/usr/local/cuda-7.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/ubuntu/bin ; export LD_LIBRARY_PATH=/usr/local/cuda-7.0/lib ; export ND_DEVICE_REL_PATH=/home/ubuntu/.nddevice ; export ND_CONFIG_PATH=\$ND_DEVICE_REL_PATH/latest/nd_config.ini ; export ND_INPUT_PATH=/home/iriscli/ND_INPUT ; export ND_OUTPUT_PATH=/home/iriscli/ND_OUTPUT ; /home/ubuntu/bin/wrapper_scheduler" > $cron_file
+	echo "@reboot export PATH=/usr/local/cuda-7.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/ubuntu/bin ; export LD_LIBRARY_PATH=/usr/local/cuda-7.0/lib ; export ND_DEVICE_REL_PATH=/home/ubuntu/.nddevice ; export ND_CONFIG_PATH=\$ND_DEVICE_REL_PATH/latest/nd_config.ini ; export ND_INPUT_PATH=/home/iriscli/ND_INPUT ; export ND_OUTPUT_PATH=/home/iriscli/ND_OUTPUT ; /home/ubuntu/bin/wrapper_cleanupstate" >> $cron_file
+	echo "*/10 *  * * * export PATH=/usr/local/cuda-7.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/ubuntu/bin ; export LD_LIBRARY_PATH=/usr/local/cuda-7.0/lib ; export ND_DEVICE_REL_PATH=/home/ubuntu/.nddevice ; export ND_CONFIG_PATH=\$ND_DEVICE_REL_PATH/latest/nd_config.ini ; export ND_INPUT_PATH=/home/iriscli/ND_INPUT ; export ND_OUTPUT_PATH=/home/iriscli/ND_OUTPUT ; /home/ubuntu/bin/wrapper_otacheck" >> $cron_file
+	echo "@reboot touch /home/ubuntu/.nddevice/boot_status && echo 0 > /home/ubuntu/.nddevice/boot_status" >> $cron_file
+	#LTE default
+        touch /home/ubuntu/.nddevice/session_lte
+	echo "@reboot [ -f "/home/ubuntu/.nddevice/session_lte" ] && sudo /home/ubuntu/bin/disable_wifi_turn_on_lte.sh" >> $cron_file
+	echo "@reboot [ ! -f "/home/ubuntu/.nddevice/session_lte" ] && sudo /home/ubuntu/bin/disable_lte_turn_wifi_on.sh" >> $cron_file
+	
+	
+	crontab $cron_file
+	#GPU frequency
+
+	root_cron_file="/home/ubuntu/.nddevice/root_conf.cron"
+	if [ ! -f "$root_cron_file" ]; then
+		touch "$root_cron_file"
+	fi
+
+	echo "@reboot [ -f "/home/ubuntu/.nddevice/gbusoverride" ] && sudo echo 537600000 >  /sys/kernel/debug/clock/gbus/max" >> $root_cron_file
+	echo "@reboot rm -rf /home/iriscli/ND_INPUT/*" >> $root_cron_file
+	echo "@reboot rm -rf /home/iriscli/ND_OUTPUT/*" >> $root_cron_file
+	echo "@reboot [ -f /home/ubuntu/.nddevice/com_backup ] && [ -d /home/ubuntu/.nddevice/backup/ ] && rm -rf /home/ubuntu/.nddevice/backup/*" >> $root_cron_file
+	echo "@reboot [ -s "/home/ubuntu/.nddevice/com_reboot" ] && /home/ubuntu/.nddevice/reboot.sh" >> $root_cron_file
+	echo "@reboot [ -f "/home/ubuntu/.nddevice/com_root" ] && sudo /home/ubuntu/.nddevice/command.sh" >> $root_cron_file
+	sudo crontab $root_cron_file
+        #TODO clean it
+	#commented as gbus not required
+	#touch /home/ubuntu/.nddevice/gbusoverride
+	#backup delete
+	touch /home/ubuntu/.nddevice/com_backup
+	#reboot command 
+	touch /home/ubuntu/.nddevice/com_reboot 
+	#default value 
+	echo "60" >/home/ubuntu/.nddevice/com_reboot
+}
+
+#to make the sdmount point as readonly
+function sdcard_mount_readonly()
+{
+	sudo umount /dev/mmcblk1p1
+	mount_status=$?
+
+	if [[ "$mount_status" == "0" ]];then
+    		sudo rm -rf /media/SdCard/*
+    		cleanup_status=$?
+
+    		if [[ "$cleanup_status" == "0" ]];then
+       			sudo chattr +i /media/SdCard
+    		fi
+	else
+
+		folder_mount="/media/SdCard/"
+		#create folder /media/sdcard/
+		if [ ! -d "$folder_mount" ]; then
+			sudo mkdir -p "$folder_mount"
+    			mkdir_status=$?
+
+    			if [[ "$mkdir_status" == "0" ]];then
+       				sudo chattr +i $folder_mount
+    			fi
+			
+			echo -e "\t$folder_mount is created with chattr"
+		fi 
+		
+
+	fi
+}
+#default value
+deviceId="none"
+sessionId="none"
+ssid="none"
+ssidPassword="none"
+lanecal="none"
+saveMP4="none"
+deviceType="none"
+deviceSubType="none"
+vehClass="none"
+profileName="none"
+apnName="none"
+
+#Read deviceID and devicetype, subtype
+deviceId="$(sudo sys_tx1read | sed -n 's/^Product serial_num:[[:space:]]*//p')"
+if [ "$deviceId" == "" ]; then
+	deviceId="none"
+fi
+
+sudo /bin/revision_icdc
+deviceSubType_t="$(echo $?)"
+
+if [ "$deviceSubType_t" == "0" ]; then
+	deviceSubType="dvt1"
+fi
+
+if [ "$deviceSubType_t" == "1" ]; then
+	deviceSubType="dvt2"
+fi
+
+if [ "$deviceSubType_t" == "2" ]; then
+	deviceSubType="dvt3"
+fi
+
+if ! [ -e /bin/revision_icdc ]; then
+	deviceSubType="none"
+fi
+
+if [ "$deviceId" != "none" ] && [ "$deviceSubType" != "none" ]
+then
+	deviceType="bagheera"
+fi
+
+echo "AUTO Device Id  = $deviceId"
+echo "AUTO deviceType  = $deviceType"
+echo "AUTO deviceSubType  = $deviceSubType"
+
+
+#scan the arguments
+while true
+do
+    case "$1" in
+    -h | --help)
+	Print_Help
+	exit 0
+	;;
+     -deviceId | --deviceId )
+	deviceId="$2"
+	shift 2
+	;;
+     -sessionId | --sessionId )
+	sessionId="$2"
+	shift 2
+	;;
+     -ssid | --ssid )
+	ssid="$2"
+	shift 2
+	;;
+
+     -ssidPassword | --ssidPassword)
+	ssidPassword="$2"
+	shift 2
+	;; 
+
+     -lanecal | --lanecal)
+	lanecal="$2"
+	shift 2
+	;; 
+
+     -saveMP4 | --saveMP4)
+	saveMP4="$2"
+	shift 2
+	;; 
+
+     -vehClass | --vehClass)
+        vehClass="$2"
+        shift 2
+        ;;
+
+     -device | --deviceType)
+        deviceType="$2"
+        shift 2
+        ;;
+
+     -deviceSub | --deviceSubType)
+        deviceSubType="$2"
+        shift 2
+        ;;
+
+
+     -profileName | --profileName)
+        profileName="$2"
+        shift 2
+        ;;
+
+     -apnName | --apnName)
+        apnName="$2"
+        shift 2
+        ;;
+
+
+     *)
+	break;;
+	
+   esac
+done
+
+#check if no deviceId then flag the error and error out
+if [ "$deviceId" == "none" ]; then
+	echo "No Device Id provide exiting ...."
+	echo "/bin/sys_tx1read couldnt find Product serial_num"
+	Print_Help
+	exit;
+fi 
+echo "Device Id  = $deviceId"
+
+#check if no sessionId then just use the same sessionId as deviceId
+if [ "$sessionId" == "none" ]; then
+	echo -e "No sessionId is provided \nMaking sessionId same as Device Id = $deviceId"
+	sessionId="$deviceId"
+fi 
+echo "Session Id = $sessionId"
+
+#check if ssid is provided
+if [ "$ssid" == "none" ]; then
+	echo -e "No wifi ssid is provided \nMaking wifi ssid as = $deviceId"
+	ssid="$deviceId"
+fi 
+echo "ssid = $ssid"
+
+#check if ssid is provided
+if [ "$ssidPassword" == "none" ]; then
+	echo -e "No wifi password is provided Making wifi ssidPassword as default i.e., 'in37\$12@PA'"
+	ssidPassword="in37\$12@PA"
+fi 
+echo "ssidPassword = $ssidPassword"
+
+
+#check if lanecal is provided
+if [ "$lanecal" == "none" ]; then
+	echo -e "No option for lancal is provided making it as none"
+	lanecal="none"
+fi 
+echo "laneCal = $lanecal"
+
+#check if saveMP4 is provided
+if [ "$saveMP4" == "none" ]; then
+	echo -e "No option for saveMP4 is provided making it as delete"
+	saveMP4="delete"
+fi 
+echo "saveMP4 = $saveMP4"
+
+#check if vehClass is provided 
+if [ "$vehClass" == "none" ]; then
+	echo -e "No vehClass is provided \nMaking vehClass as default = Class1"
+	vehClass="Class1"
+fi
+echo "vehClass = $vehClass"
+
+#check if deviceType is provided 
+if [ "$deviceType" == "none" ]; then
+	echo -e "No deviceType is provided \nMaking deviceType as default = bagheera"
+	deviceType="bagheera"
+fi
+echo "deviceType = $deviceType"
+
+#check if deviceSubType is provided 
+if [ "$deviceSubType" == "none" ]; then
+	echo -e "No deviceSubType is provided \nMaking deviceSubType as default = dvt2"
+	deviceSubType="dvt2"
+fi
+echo "deviceSubType = $deviceSubType"
+
+
+#check if no profileName then flag the error and error out
+if [ "$profileName" == "none" ]; then
+        echo "No profileName provided setting default as JIO ...."
+        profileName="JIO"
+fi
+echo "profileName = $profileName"
+
+#check if no apnName then flag the error and error out
+if [ "$apnName" == "none" ]; then
+        echo "No apnName provided setting default as jionet ...."
+        apnName="jionet"
+fi
+
+read -p "Press Y|y to contiue ::" ans
+if [[ "$ans" == "Y"  ||  "$ans" == "y" ]]; then
+
+	echo "**************STARTING FIRST-TIME CONFIGURATION*********************"		
+	delete_default_setup
+	#add_user Added as part of image creation 
+	add_new_files_conf
+	untar_payload
+	#install_new_packages #Added for psutils
+	cron_setup
+	##configure_wifi_ssid
+	#add_service #Commented based on the issue BHAGEERA-217  
+	sdcard_mount_readonly
+	echo "**************FIRST-TIME CONFIGURATION COMPLETED*********************"		
+fi
+
+exit 0

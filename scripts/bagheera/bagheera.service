@@ -1,0 +1,21 @@
+[Unit]
+Description=NDService-Bagheera
+After=nvcamera-daemon.service console.service #ntdi_icdc.service
+Wants=nvcamera-daemon.service console.service #ntdi_icdc.service
+
+[Service]
+TimeoutStartSec=5
+TimeoutStopSec=5
+KillMode=mixed
+SendSIGKILL=yes
+
+ExecStartPre=/bin/sleep 2
+
+ExecStart=/home/ubuntu/bin/wrapper_service.sh bagheera
+
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=graphical.target 
+

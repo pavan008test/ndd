@@ -1,0 +1,33 @@
+KRT-2252
+
+Adding RAR to copying 3 sierra firmwares into the device at location /etc/vendor and also copying the few script to execute the different FWs into /usr/bin/
+
+FWs : These FW were added at S3 location - s3://netradyne-sharing/sierra_fw/firmware_WP7609.zip
+md5sum : f8f2f7d7855278d3b23e35a6d398d6fc  firmware_WP7609.zip
+
+9999999_9908043_SWI9X07Y_02.18.05.00_00_GENERIC_002.041_004.spk
+9999999_9908043_SWI9X07Y_02.28.03.05_00_GENERIC_002.073_001.spk
+9999999_9908043_SWI9X07Y_02.28.03.05_00_TELSTRA_001.058_001.spk
+
+
+Scripts : Scripts are added in the git at location prebuilts/firmware/sierra/scripts/
+
+lte_gps_sierra_upgrade_9x07.sh
+lte_gps_sierra_upgrade_9x15.sh
+sierra_fw_upgrade_WP7609_02.18.05.00_GENERIC.sh
+sierra_fw_upgrade_WP7609_02.28.03.05_GENERIC.sh
+sierra_fw_upgrade_WP7609_02.28.03.05_TELSTRA.sh
+
+There are other couple of bins that is fwdldarm64le and slqssdk which should be updated with slqssdk_27 version for FW installation at /usr/bin. Hence latest files
+are being copied to /usr/bin. Note: SLQSSDK copying to /usr/bin/ and which is already present in service/conn_mgr is same.
+
+Implementation: 
+
+1. unzip firware_WP7609.zip and copy all .spk to /etc/vendor/
+2. copy all above scripts to /usr/bin/
+3. All copies are checked with exit status
+4. Compare the present FW in the device with FW name - GENERIC ; FW version - 02.18.05
+5. If it is not matching then go ahead to install this 9999999_9908043_SWI9X07Y_02.18.05.00_00_GENERIC_002.041_004.spk
+6. Conn_mgr is stopped before installing.
+7. Otherwise FW matching exit.
+

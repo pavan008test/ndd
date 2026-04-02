@@ -1,0 +1,1 @@
+This task renames the inertial_obs_temp folder to observations in .nddevice folder. If observations folder already exists, inertial_obs_temp content will be copied to observations and inertial_obs_temp folder will be removed.

@@ -1,0 +1,6 @@
+*filter
+-A INPUT -s 127.0.0.1/32 -p tcp -m tcp --dport 6375 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 6375 -j DROP
+-A INPUT -s 127.0.0.1/32 -p tcp -m tcp --dport 6376 -j ACCEPT
+-A INPUT -p tcp -m tcp --dport 6376 -j DROP
+COMMIT

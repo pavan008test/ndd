@@ -1,0 +1,27 @@
+#
+# Copyright (c) 2016, NVIDIA CORPORATION.  All rights reserved.
+#
+
+[Unit]
+Description=nvcamera daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+TimeoutStopSec=5
+KillMode=mixed
+SendSIGKILL=yes
+OOMScoreAdjust=-1000
+ExecStart=/usr/sbin/nvcamera-daemon
+ExecStopPost=/bin/sleep 2
+StandardOutput=syslog
+#StandardOutput=null
+Restart=on-failure
+#Restart=no
+Environment="enableScfTimeoutMultiple=10"
+
+Nice=-10
+
+[Install]
+WantedBy=multi-user.target

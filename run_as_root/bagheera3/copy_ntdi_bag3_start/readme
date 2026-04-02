@@ -1,0 +1,6 @@
+Jira ID : DT-3624 : BSP OS 13.0.30 Changes to be taken in 6.14.rc.2 OTA 
+
+740ba87ca4f415dacc31285a5628948f  ntdi_bag3_startup
+
+the startup script changes has been taken from 13.0.28,13.0.29 and 13.0.30 OS 
+

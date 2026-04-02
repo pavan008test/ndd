@@ -1,0 +1,7 @@
+
+CXX := g++
+CC := gcc
+CFLAGS += -DBAGHEERA
+LDFLAGS=-lpthread -lrt -g -L../ -lsys_obd -L$(ND_CORE_LIB_ROOT)/cpp/out/ -lndcore -L$(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/lib/ -ljansson -liniparser
+C_INCLUDES= $(ND_CORE_LIB_ROOT)/cpp/inc $(ND_CORE_LIB_ROOT)/cpp/inc/ndmb inc/ $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/inc/
+

@@ -1,0 +1,5 @@
+This task is to copy blackvideo_editing.mp4,blackvideo_editing_LD.mp4,blackvideo_editing_FHD.mp4 files into the device at /home/ubuntu/.nddevice. This file is useful for black out the videos in privacy enabled duration 
+
+The blackvideo_editing.mp4 is uploaded to s3 - s3://netradyne-sharing/bagheera2_blackvideo/
+The blackvideo_editing_LD.mp4 is uploaded to s3 - s3://netradyne-sharing/bagheera2_blackvideo/
+The blackvideo_editing_FHD.mp4 is uploaded to s3 -s3://netradyne-sharing/bagheera2_blackvideo/

@@ -1,0 +1,10 @@
+This task is to add the command "touch /dev/shm/ntdi_icdc.done" at last of a file /etc/startup.sh before exit 0 command.
+Copying the updated file to device by checking the reference md5sum ( this is taken from QA devices. check around 5 device same md5sum) with exiting file in the device. This is because we have confirmation that all field devices will be having same version of file. If not failing the OTA.
+If that is equal then going forward to copy the updated file other fail. After copy also checking the updated md5sum and if not equal failing. 
+
+This came as requirement as part of BHAGEERA-3398 to fix red LED blinking due to service stuck. As a fix a dependency is added in the startup.sh.
+
+As a part revert we remove that touch command from startup.sh and if that removal fails, we copy that backup file to /etc/
+
+In any case of failure we are stopping the script and making OTA fail.
+

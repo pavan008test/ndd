@@ -1,0 +1,21 @@
+[Unit]
+Description=NDService-fan_control
+
+After=clik.service systemrw.mount leprop.service
+Wants=systemrw.mount
+
+[Service]
+TimeoutStartSec=5
+TimeoutStopSec=5
+KillMode=mixed
+SendSIGKILL=yes
+
+ExecStartPre=/bin/sleep 2
+
+ExecStart=/home/ubuntu/bin/wrapper_service.sh fan_control
+
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+[Unit]
+Description=NDService-nd_sam
+After=clik.service
+
+[Service]
+KillMode=mixed
+SendSIGKILL=yes
+
+ExecStart=/home/ubuntu/bin/wrapper_service.sh nd_sam
+
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

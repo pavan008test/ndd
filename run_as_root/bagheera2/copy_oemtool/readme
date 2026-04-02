@@ -1,0 +1,5 @@
+This is the tool to check the information of the Sdcard present in the device. To run this OEMTool there is another SDConfig.txt which is necessarly should be present in the location from where the command for OEMTool is being executed. 
+
+For example if there is a folder SanDiskTool containing OEMTool and SDConfig.txt is present in the .nddevice folder and if any cloud command is called it executes from a folder latest. So the file SDCOnfig.txt file should be necessarly present in latest folder to get the proper result from this tool.
+
+

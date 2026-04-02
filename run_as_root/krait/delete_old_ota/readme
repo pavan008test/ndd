@@ -1,0 +1,25 @@
+This task is for to remove the old ota packages which are no longer needed or which are failed not removed ota packages. This will be one time task to check those kind of old pacakges and remove it. This helps in making space during ota by removing those folders.
+
+This is done by getting folders list from .nndevie at maxdepth 1 and grep .rc. from those result and by excluding the latest package folder, current applying package folder and removing them.
+
+2 programatical ways :
+
+
+find /home/ubuntu/.nddevice/ -type d -maxdepth 1 | grep /*.rc.* | grep -v $latest_dir | grep -v $present_dir | xargs -r rm -rf {}
+
+or 
+
+latest_dir=$(basename $(realpath /home/ubuntu/.nddevice/latest))
+present_dir=$(cat /home/ubuntu/.nddevice/nddevice.ini | grep -A1 "\[upgrade\]" | tail -1| awk -F " = " '{print $2}')
+log "Getting the ota applying package - $present_dir"
+
+log "Checking for any extra packages other than $latest_dir and $present_dir ota package folders..."
+
+if [[ -n $(find /home/ubuntu/.nddevice/ -type d -maxdepth 1 | grep /*.rc.* | grep -v $latest_dir | grep -v $present_dir) ]]
+then
+        log "removing the unwanted package folders - $(find /home/ubuntu/.nddevice/ -type d -maxdepth 1 | grep /*.rc.* | grep -v $latest_dir | grep -v $present_dir)"
+        find /home/ubuntu/.nddevice/ -type d -maxdepth 1 | grep /*.rc.* | grep -v $latest_dir | grep -v $present_dir | xargs -r rm -rf {}
+else
+        log "No extra package folder to remove"
+fi
+

@@ -1,0 +1,115 @@
+Sierra Firmware Upgrade:
+----------------------------------------------
+
+1. 
+>> Copy attached contents to sdcard 
+>> untar the Sierra.tar.bz2 to /home/ubuntu/Sierra (tar -jxvf Sierra.tar.bz2)
+>> cd to /home/ubuntu/Sierra
+
+2. chmod 777 ./ -R
+
+3. Pls ensure wifi is turned off
+>>   sudo nmcli radio wifi off
+
+>>   Ensure wlan0 is off by checking ifconfig.
+
+4. sudo ./fwdldarm -s /home/ubuntu/Sierra/slqssdk -d 9x15 -p /home/ubuntu/Sierra/TEMP
+
+This is flashing Sierra AT&T firmware using their sample executable.
+
+If flashing is success , then should see message like below , the download time should not be more than 3-5 mins. Firmware download of Sierra module 
+is required only once.
+Detecting USB of the target
+S1
+S5
+S7
+DONE
+Communicating with the target
+DONE
+Switching to firmware download mode
+..............DONE
+Downloading the firmware
+.....DONE
+Rebooting the module
+.................DONE
+Firmware Download SUCCESS
+
+
+Sometimes incase it takes more than 5mins , it means somewhere firmware download has hung , pls power cycle device and repeat Step 3 & 4 .
+Its absolutely fine to abruptly exit firmware download.
+
+5.Power cycle the device using <<sudo reboot>>.
+
+
+LTE session start (by providing profile and APN configuration)
+--------------------------------------------
+
+Note:Currently the Sierra firmware provided is for AT&T , however in India we could test it only with Reliance JIO Sim and not any other operators.
+And since Reliance JIO network is not very stable many times we haven't got latched to their LTE network as well, hence this too has undergone
+minimal testing.
+
+Pls insert the SIM Card in SIM slot.
+
+
+1.Pls ensure wifi is turned off
+>>   sudo nmcli radio wifi off
+
+>>   Ensure wlan0 is off by checking ifconfig.
+
+2. cd /home/ubuntu/Sierra
+
+3. sudo su
+
+4. ./connectionmgrarm ./slqssdk 0 <<profileName>>  <<APNName>> &
+The last 2 parameters are profile & APN name . Pls provide your operator LTE Profile Name & APN Name.
+Providing '&' to run the whole process in background so that terminal is freed up. On executing the above command , will print <<PID>>.
+Kindly keep a note of that PID , another process also will be launched internally by Sierra SDK whose pid will be <<PID>>+1. 
+
+
+Eg: The one tested here is 
+./connectionmgrarm ./slqssdk 0 JIO jionet &
+[1660]
+
+Incase need to stop complete LTE session
+kill -9 1660 (connectionmgrarm pid)
+kill -9 1661 (Sieraa SDK process pid)
+
+
+Note: 
+-----------------------------------
+>> Some times LTE connectivity can be unpredictable , so if LTE session is succesfull you would see logs like below on terminal:
+Broadcast message from systemd-journald@tegra-ubuntu (Fri 2017-01-13 09:51:53 UTC):
+
+connectionmgrarm[1660]: Dormancy Status    :CHANNEL ACTIVE
+Broadcast message from systemd-journald@tegra-ubuntu (Fri 2017-01-13 09:51:54 UTC):
+connectionmgrarm[1660]: Bytes Transferred  :6186
+Broadcast message from systemd-journald@tegra-ubuntu (Fri 2017-01-13 09:51:54 UTC):
+connectionmgrarm[1660]: Bytes Received     :4579
+Broadcast message from systemd-journald@tegra-ubuntu (Fri 2017-01-13 09:51:59 UTC):
+connectionmgrarm[1660]: Bytes Transferred  :6259
+Broadcast message from systemd-journald@tegra-ubuntu (Fri 2017-01-13 09:51:59 UTC):
+connectionmgrarm[1660]: Bytes Received     :4579
+
+Later to this you can test
+>> ifconfig 
+eth0      Link encap:Ethernet  HWaddr da:bd:15:ba:b4:d3  
+          inet addr:10.48.162.168  Bcast:10.48.162.175  Mask:255.255.255.240
+          inet6 addr: fe80::d8bd:15ff:feba:b4d3/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1430  Metric:1
+          RX packets:52 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:100 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:5379 (5.3 KB)  TX bytes:11029 (11.0 KB)
+
+>> ping www.google.com
+64 bytes from kul06s11-in-f36.1e100.net (216.58.196.36): icmp_seq=3 ttl=53 time=148 ms
+64 bytes from kul06s11-in-f36.1e100.net (216.58.196.36): icmp_seq=4 ttl=53 time=145 ms
+64 bytes from kul06s11-in-f36.1e100.net (216.58.196.36): icmp_seq=5 ttl=53 time=141 ms
+
+>> Sometimes if you see even after starting executable,  LTE session is not established , pls kill and restart as explained earlier.
+   Ideally you will not see any Bytes Transferred log or in ifconfig ip assigned to eth0.
+   Else can also power cycle the device.
+
+>> The connectionmgrarm also takes care of LTE state transition to idle and then to active automatically. You would see logs like
+CHANNEL DORMANT then CHANNEL ACTIVE. 
+

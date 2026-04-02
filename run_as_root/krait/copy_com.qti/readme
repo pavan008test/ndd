@@ -1,0 +1,6 @@
+Version 1.0
+com.qti.chi.override.so lib is added to support hardware with different functionality. This lib is from vendor VVDN. 
+
+Version 2.0
+com.qti.chi.override.so lib is being updated from VVDN to support 4 track in outward and inward camera to support live streaming.
+

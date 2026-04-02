@@ -1,0 +1,21 @@
+[Unit]
+Description=NDService-nd_dta
+
+After=dcam.service qmmf-server.service systemrw.mount leprop.service
+Wants=qmmf-server.service systemrw.mount
+
+[Service]
+TimeoutStartSec=1
+TimeoutStopSec=5
+KillMode=mixed
+SendSIGKILL=yes
+Environment="LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/nd_lib/"
+
+ExecStart=/home/ubuntu/bin/wrapper_service.sh nd_dta
+
+
+Restart=on-failure
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

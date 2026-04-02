@@ -1,0 +1,5 @@
+ RAR task to update mount option from auto to ext4
+First copy the updated file media-data.mount at /lib/systemd/
+and then move the file from /lib/systemd/ to /lib/systemd/system/ 
+
+ 

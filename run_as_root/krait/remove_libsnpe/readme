@@ -1,0 +1,9 @@
+"libndsnpe.so" this file exists in 2 paths:
+1. /nd_lib
+2. /home/ubuntu/.nddevice/latest/service/analytics/ 
+
+so, we need to remove from "/nd_lib" path and the new "libndsnpe.so" will only be copied in "/home/ubuntu/.nddevice/latest/service/analytics/" path as we are giving the copy path in analytics.sh library paths
+
+
+This RAR_task is to remove "libndsnpe.so" in "/nd_lib" path
+

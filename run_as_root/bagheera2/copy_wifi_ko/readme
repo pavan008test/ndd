@@ -1,0 +1,2 @@
+brcmfmac.ko is present in /lib/modules/misc/. This is being replaced with new one with wifi bus sleep disabled.
+Please refer to Jira ticket -  BGR2-340 for more details

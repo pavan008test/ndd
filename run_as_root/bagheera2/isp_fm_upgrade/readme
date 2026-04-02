@@ -1,0 +1,6 @@
+Copying ov491_isp_upgrade.sh to /image_upgrade/isp/ which taken from outcam_gpio_direction.patch on top of latest vvdn tag v1.4.1.5
+Added with send error code function for toggle gpio pin while exit
+send_error_code() {
+    gpio_test -n 461 -i
+    exit $1
+}

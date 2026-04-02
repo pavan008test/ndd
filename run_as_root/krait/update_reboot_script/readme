@@ -1,0 +1,2 @@
+KRT-718: This task is to update the reboot.sh script with shutdown bin obsolute path as in krait the shutdown bin is not able to find out in script since PATH is not exported when device starts. 
+

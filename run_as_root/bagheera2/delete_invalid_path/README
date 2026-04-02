@@ -1,0 +1,5 @@
+If observations.zip or observations.7z is present in /data/nd_files/state_files/ , It needs to be moved to /home/ubuntu/.nddevice/
+Deleting the below paths
+/home/ubntu 
+/data/nd_files/state_files/
+jira-id:https://netradyne.atlassian.net/browse/BGR2-1622

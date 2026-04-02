@@ -1,0 +1,2 @@
+This task is to copy libasound libs at /usr/lib/aarch64-linux-gnu if it is not present. For few devices after updatingto 3.5.6.rc.17, this libasound files are missing the VOD is not happening. So to fix this we are copy this lib file.
+BGR2-735

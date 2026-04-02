@@ -1,0 +1,3 @@
+This task is to copy the new opencv3.4.2 libs into the device /usr/local/. So shipping it as tar and extracting to /usr/local/ while updating. This fulfill the analytics dependencies for new development. 
+
+The same has to be copied for build device also for compiling.

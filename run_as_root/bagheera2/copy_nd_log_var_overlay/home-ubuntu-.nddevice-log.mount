@@ -1,0 +1,14 @@
+[Unit]
+Description=OverlayFS for /home/ubuntu/.nddevice/log
+After=sync-early@nddevice-log.service media-data.mount local-fs-pre.target
+Requires=media-data.mount
+Before=systemd-journald.service rsyslog.service local-fs.target
+
+[Mount]
+What=overlay
+Where=/home/ubuntu/.nddevice/log
+Type=overlay
+Options=lowerdir=/home/ubuntu/.nddevice/log,upperdir=/media/data/overlay_nddevice_log/upper,workdir=/media/data/overlay_nddevice_log/work
+
+[Install]
+WantedBy=local-fs.target

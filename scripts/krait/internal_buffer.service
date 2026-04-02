@@ -1,0 +1,21 @@
+[Unit]
+Description=NDService-InternalBuffer
+
+After=dcam.service qmmf-server.service systemrw.mount leprop.service
+Wants=qmmf-server.service systemrw.mount
+
+[Service]
+TimeoutStartSec=1
+TimeoutStopSec=5
+KillMode=mixed
+SendSIGKILL=yes
+
+ExecStart=/home/ubuntu/bin/wrapper_service.sh internal_buffer
+
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
+
+

@@ -1,0 +1,4 @@
+This task is to delete the bagheera_reboot_token_file.bin file which is present in /dev/shm/
+A ramfile with the name "bagheera_reboot_token_file.bin" is created in the shared memory space whenever bagheera service is started for the first time after device reboot.
+This file is intentionally created to differentiate between “bagheera start after device reboot” and “bagheera start without device reboot (on account of camera crash, segmentation fault or force restart)”.
+This ramfile should be deleted whenever there is an ota  update. This is needed to mimic the “bagheera start after device reboot” scenario.

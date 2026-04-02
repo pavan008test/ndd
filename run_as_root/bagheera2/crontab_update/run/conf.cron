@@ -1,0 +1,3 @@
+@reboot touch /home/ubuntu/.nddevice/boot_status && echo 0 > /home/ubuntu/.nddevice/boot_status
+@reboot [ -f /home/ubuntu/.nddevice/session_lte ] && sudo /home/ubuntu/bin/disable_wifi_turn_on_lte.sh
+@reboot [ ! -f /home/ubuntu/.nddevice/session_lte ] && sudo /home/ubuntu/bin/disable_lte_turn_wifi_on.sh

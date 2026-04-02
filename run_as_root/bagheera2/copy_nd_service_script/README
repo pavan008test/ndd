@@ -1,0 +1,6 @@
+This task is used to replace or upgarde the nd_service.sh script from /usr/bin.
+
+Upgrade notes:
+--------------
+Upgraded nd_service.sh script will support the disable services option also.
+

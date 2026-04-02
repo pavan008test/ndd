@@ -1,0 +1,19 @@
+[Unit]
+Description=NDService-wifi_mgr
+
+[Service]
+Type=simple
+
+KillMode=mixed
+SendSIGKILL=yes
+
+ExecStartPre=/bin/sleep 5
+ExecStart=/home/ubuntu/bin/wrapper_service.sh wifi_mgr
+
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
+
+

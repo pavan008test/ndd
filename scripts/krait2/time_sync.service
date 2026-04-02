@@ -1,0 +1,21 @@
+[Unit]
+Description=NDService-time_sync
+
+
+After=clik.service systemrw.mount leprop.service
+Wants=systemrw.mount
+
+[Service]
+TimeoutStartSec=1
+TimeoutStopSec=5
+KillMode=mixed
+SendSIGKILL=yes
+
+ExecStart=/home/ubuntu/bin/wrapper_service.sh time_sync
+
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
+

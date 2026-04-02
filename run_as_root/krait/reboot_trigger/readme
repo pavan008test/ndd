@@ -1,0 +1,3 @@
+This task to copy reboot_trigger.sh to .nddevice for onetimereboot service to run and copy onetimereboot.service file to /etc/systemd/system/.
+reboot_trigger will sleep for some time and does msp qcs_indicate_reboot through cli_mgr and perform poweroff --reboot -f to reboot the device.
+After service file and script is copied, service is started with systemclt start.

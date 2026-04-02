@@ -1,0 +1,1 @@
+This Task is used to delete the file "/dev/shm/nd_files_c/cam_rec_service_started" so that on OTA update, cam_rec service start is treated as a fresh one.

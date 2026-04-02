@@ -1,0 +1,10 @@
+Author : Dhanyath R
+Author Email : dhanyath.ravi@netradyne.com
+
+Jira ID : DT-2978 : Update below .ko at /lib/modules/4.9.160-perf/kernel/drivers/iio/imu/inv_mpu_20602/
+
+Description : 
+
+Updates IMU kernel modules based on OS version by checking MD5 checksums and replacing files if needed.
+Backs up existing modules, renames old files for traceability, and reloads kernel modules after update.
+Validates driver initialization using status files to ensure successful update.

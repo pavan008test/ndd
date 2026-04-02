@@ -1,0 +1,1 @@
+This task is to delete the db entries from a table VIDFILES where TYPW == 7 and STATUS == 2

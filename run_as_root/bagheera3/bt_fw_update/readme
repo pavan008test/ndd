@@ -1,0 +1,11 @@
+We have taken the ntdi_bag3_startup script from the  latest 13.0.24 OS.
+
+The following versions: 13.0.19+5.6.8, 13.1.A+5.6.8 ,13.0.24 (all these OS+ota) have the same md5sum of ntdi_bag3_startup, which is 89c577fad8e624401f8bf72add1ce1ea.
+We've taken the ntdi_bag3_startup from 13.0.24 OS and updated it with the latest BT FW.
+
+The only difference is in one line: /bin/vendor/brcm_patchram --patchram /lib/firmware/cypress/BCM4356A2_25_10_2024_001.003.015.0124.0418.hcd -d --baudrate 3000000 --use_baudrate_for_download --no2bytes --enable_hci /dev/ttyTHS2 &
+
+Please find the attached ntdi_bag3_startup_bt_update , which is taken for x.6.10 OTA.
+ntdi_bag3_startup_bt_update md5sum : ab4cb34a11a606555410f7a8797418b3  ntdi_bag3_startup
+
+Also updating this latest ntdi_bag3_startup script for all the D450 OS versions devices.

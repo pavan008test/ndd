@@ -1,0 +1,13 @@
+# /etc/systemd/system/start-dhcpd@.service
+[Unit]
+Description=Start DHCP Server on %i
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/bin/vendor/dhcp_setup.sh %i
+PIDFile=/var/run/dhcpd-%i.pid
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

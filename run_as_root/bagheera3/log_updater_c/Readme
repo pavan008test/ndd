@@ -1,0 +1,7 @@
+Since the log bandwidth optimisation is inplace where it uploads the critical log statements in a service. While updating old updateEngine is being triggered where it could not create the logs in updater_c folder, In this case all logs will be there in updater folder where those logs stored in non critical logs. 
+
+Because we need updater logs,Through one-time RAR task that would move the updater log from updater folder to updater_c folder at the end of OTA Update process 
+
+For this to make keep alive manager not to upload to critical logs when logs are being in updater folder, 
+modify the keepalive count for +2 if the count value is at 0 or 8, 9. 
+jira-id:BHAGEERA-4761

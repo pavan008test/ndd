@@ -1,0 +1,89 @@
+
+include $(BASE)/Makefile.common
+
+ifeq "$(MAKECMDGOALS)" "krait_32"
+    PRODUCT_FOLDER = krait
+else ifeq "$(MAKECMDGOALS)" "krait_64"
+    PRODUCT_FOLDER = krait
+else ifeq "$(MAKECMDGOALS)" "bagheera2"
+
+    KVS_DIR_PATH = $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/bagheera/packages/kvs_sdk
+    OUT=$(Ndcentral_BASE)/out
+
+    CFLAGS += -DDISABLE_CLK_AUD_CAM
+
+    LDFLAGS += -L/usr/lib/aarch64-linux-gnu -lgobject-2.0 -lglib-2.0 -lgstbase-1.0 -lgstreamer-1.0 -L$(KVS_DIR_PATH)/lib -Wl,--start-group -lZipper -ldl -lgstapp-1.0 -lboost_system -lcproducer -Wl,--end-group
+    LDFLAGS += $(PROTOBUF)/bagheera_1_py3.5/lib/libprotobuf.so
+
+    C_INCLUDES += $(Ndcentral_BASE)/../../common/inc $(Ndcentral_BASE)/../inc/bagheera $(Ndcentral_BASE)/inc/ $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/common/lib_src/zipper/zipper
+    C_INCLUDES += $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/bagheera/inc/libutils/inc/gstreamer-1.14.5/ /usr/include/glib-2.0 /usr/lib/aarch64-linux-gnu/glib-2.0/include
+    C_INCLUDES += $(ND_PROTO)/
+    C_INCLUDES += $(KVS_DIR_PATH)/include/src/include/
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/client/include/
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/common/include/
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/utils/include/
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/state/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/trace/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/mkvgen/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/view/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/heap/include
+
+    C_INCLUDES += $(ND_CORE_LIB_ROOT)/cpp/inc/qrscanner
+
+else ifeq "$(MAKECMDGOALS)" "bagheera3"
+
+    KVS_DIR_PATH = $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/bagheera/packages/kvs_sdk
+    OUT=$(Ndcentral_BASE)/out
+
+    CFLAGS += -DDISABLE_CLK_AUD_CAM -DDMS_CAMERA_SUPPORTED -DEGL_NO_X11
+
+    LDFLAGS += -L/usr/lib/aarch64-linux-gnu -lgobject-2.0 -lglib-2.0 -lgstbase-1.0 -lgstreamer-1.0 -L$(KVS_DIR_PATH)/lib -Wl,--start-group -lZipper -ldl -lgstapp-1.0 -lboost_system -lcproducer -Wl,--end-group
+    LDFLAGS += $(PROTOBUF)/bagheera_1_py3.5/lib/libprotobuf.so
+    LDFLAGS += -L/usr/lib/aarch64-linux-gnu/tegra/ -lnvbuf_utils -lcuda
+    LDFLAGS += -L/usr/local/cuda-10.2/targets/aarch64-linux/lib/ -lcudart
+    LDFLAGS += -L/usr/lib/aarch64-linux-gnu/ -lEGL
+
+    C_INCLUDES += $(Ndcentral_BASE)/../../common/inc $(Ndcentral_BASE)/../inc/bagheera $(Ndcentral_BASE)/inc/ $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/common/lib_src/zipper/zipper $(ND_CORE_LIB_ROOT)/cpp/inc/bagheera2
+    C_INCLUDES += $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/bagheera/inc/libutils/inc/gstreamer-1.14.5/ /usr/include/glib-2.0 /usr/lib/aarch64-linux-gnu/glib-2.0/include
+    C_INCLUDES += /usr/local/cuda/include/
+    C_INCLUDES += $(ND_PROTO)/
+    C_INCLUDES += $(KVS_DIR_PATH)/include/src/include/
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/client/include/
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/common/include/
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/utils/include/
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/state/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/trace/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/mkvgen/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/view/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/heap/include
+
+    C_INCLUDES += $(ND_CORE_LIB_ROOT)/cpp/inc/qrscanner
+
+else ifeq "$(MAKECMDGOALS)" "x86"
+
+    KVS_DIR_PATH = $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/bagheera/packages/kvs_sdk
+    OUT=$(Ndcentral_BASE)/out
+
+    CFLAGS += -DDISABLE_CLK_AUD_CAM
+    CFLAGS := $(filter-out -std=c++11, $(CFLAGS))
+    CFLAGS += -std=c++14
+
+    LDFLAGS += -L/usr/lib/x86_64-linux-gnu -lgobject-2.0 -lglib-2.0 -lgstbase-1.0 -lgstreamer-1.0 -L$(KVS_DIR_PATH)/lib -Wl,--start-group -lZipper -lz -ldl -lgstapp-1.0 -lboost_system -lcproducer -Wl,--end-group
+    LDFLAGS += -lprotobuf
+
+    C_INCLUDES += $(Ndcentral_BASE)/../../common/inc $(Ndcentral_BASE)/inc/ $(Ndcentral_BASE)/../inc/bagheera $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/zipper/zipper
+    C_INCLUDES += $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/bagheera/inc/libutils/inc/gstreamer-1.14.5/ /usr/include/glib-2.0 /usr/lib/x86_64-linux-gnu/glib-2.0/include/
+    C_INCLUDES += $(ND_PROTO)/
+    C_INCLUDES += $(KVS_DIR_PATH)/include/src/include/
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/client/include/
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/common/include/
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/utils/include/
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/state/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/trace/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/mkvgen/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/view/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/heap/include
+
+else ifeq "$(MAKECMDGOALS)" "bagheera"
+    PRODUCT_FOLDER = bagheera
+endif

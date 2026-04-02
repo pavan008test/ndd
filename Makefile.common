@@ -1,0 +1,41 @@
+ND_CORE_LIB_ROOT ?= $(BASE)/../nd_core_utils
+NDCORESO_PATH ?= /home/ubuntu/.nddevice/latest/
+
+C_INCLUDES += $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/common/inc $(ND_CORE_LIB_ROOT)/cpp/inc
+LDFLAGS += -L$(ND_CORE_LIB_ROOT)/cpp/out -lnd_zbar -lndcore -lsys
+
+# Common Python configuration
+CYTHON := cython3 -3
+
+ifeq "$(MAKECMDGOALS)" "krait_32"
+    export PRODUCT=krait
+    include $(BASE)/Makefile.common.krait32
+    STRIP_TOOL=$(COMPILER_BASE)/krait/lib32-qmmf-sdk/git-r0/recipe-sysroot-native/usr/libexec/arm-oe-linux-gnueabi/gcc/arm-oe-linux-gnueabi/6.4.0/arm-oe-linux-gnueabi-strip
+else ifeq "$(MAKECMDGOALS)" "krait_64"
+    export PRODUCT=krait
+    include $(BASE)/Makefile.common.krait64
+    STRIP_TOOL=$(COMPILER_BASE)/krait/recipe-sysroot-native/usr/libexec/aarch64-oe-linux/gcc/aarch64-oe-linux/6.4.0/aarch64-oe-linux-strip
+else ifeq "$(MAKECMDGOALS)" "bagheera3"
+    export PRODUCT=bagheera3
+    include $(BASE)/Makefile.common.bagheera3
+    STRIP_TOOL=strip
+else ifeq "$(MAKECMDGOALS)" "bagheera2"
+    export PRODUCT=bagheera2
+    include $(BASE)/Makefile.common.bagheera2
+    STRIP_TOOL=strip
+else ifeq "$(MAKECMDGOALS)" "x86"
+    export PRODUCT=bagheera2
+    include $(BASE)/Makefile.common.x86
+else ifeq "$(MAKECMDGOALS)" "bagheera"
+    export PRODUCT=bagheera
+    include $(BASE)/Makefile.common.bagheera
+    STRIP_TOOL=strip
+endif
+
+CFLAGS += -fPIE -std=c++11 -DENABLE_DECRYPTION -DENABLE_ENCRYPTION -DAUTOMATION # -O2 -Werror  -Wno-unused-function
+
+LDFLAGS += -pie -Wl,-rpath,$(NDCORESO_PATH)
+LDFLAGS += $(EXTRA_LDFLAGS)
+
+ND_PROTO ?= $(BASE)/nd_proto
+PROTOBUF ?= $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/common/protobuf

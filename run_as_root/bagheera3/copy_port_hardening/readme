@@ -1,0 +1,11 @@
+Author: Dhanyath R
+Author Email: dhanyath.ravi@netradyne.com
+Date: 2025-11-28
+
+Jira ID : DT-2612
+
+Description :
+i)  Check if /etc/iptables.port-rules exists. If it does, compare its md5sum with the local iptables.port-rules file. If they match, skip copying; otherwise, copy the new file.
+ii) Check if /lib/systemd/system/rc-local.service exists. If it does, compare its md5sum with the local rc-local.service file. If they match, skip copying; otherwise, back up the existing file and copy the new one.
+iii) If /etc/rc.local exists, back it up by renaming it to /etc/rc.local_backup.
+iv) Check if /etc/rc.local exists. If it does, compare its md5sum with the local rc.local file. If they match, skip copying; otherwise, copy the new file.

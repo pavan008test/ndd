@@ -1,0 +1,9 @@
+Jira ID - DT-2940 -  DHUB Firmware Upgrade
+
+Author : Dhanyath R
+Author E-mail ID : dhanyath.ravi@netradyne.com 
+
+Description :
+Run as root task for the DHUB firmware upgrade in the dev_6.12 release.
+Firmware Name: FL3521A_4CH-V18062301-V18070301-V18112801-S25122501.35848.sw
+MD5SUM: 1698003378129995d7fc437851e558b7

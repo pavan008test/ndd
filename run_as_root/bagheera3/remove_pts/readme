@@ -1,0 +1,7 @@
+pts_app and thermal_app folder from /
+
+As part of SISA program, team identified PTS scripts are present in production devices and using the contents present user can modify root password and potentially can make device misbehave w.r.t functionality or swam the cloud with malicious messages.
+
+ 
+
+We should remove the PTS scripts before shipping the devices from Factory.  Please add this as part of Factory SOP process.

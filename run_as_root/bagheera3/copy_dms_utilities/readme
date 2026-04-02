@@ -1,0 +1,11 @@
+Ticket : DT-2099 - Update OTA with latest binaries and utilities from the D450 codebase
+
+Description :
+DMS-related files is being copied to the path /bin/vendor/<file_name>. The files were based on Ticket: BGR3-1265.
+Md5sum of dms_flash : adca054132cd6f95d725d5f1dfafbb6d
+Md5sum of dms_i2c : ab4db576d75c636df6fa00c0cfc63b40
+Md5sum of dms_irled_status : 292166408921b9a85dad95ebbf3da2ae
+Md5sum of dms_set_label : 82355e6434dcdd179bf965e013514352
+Md5sum of dms_sku_snpn : b7b91e9b30b1ceb781f731e5c8dff3d8 
+Md5sum of dms_sonix : 1424f18b309897804e45c00fb0156ddc
+Md5sum of dms_uvc : d68097ed2a198b2810128439d85b2e80

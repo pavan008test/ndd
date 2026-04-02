@@ -1,0 +1,21 @@
+[Unit]
+Description=NDService-cam_rec
+After=nvargus-daemon.service console.service ntdi_bag2.service
+Wants=nvargus-daemon.service console.service ntdi_bag2.service
+
+[Service]
+TimeoutStartSec=5
+TimeoutStopSec=5
+KillMode=mixed
+SendSIGKILL=yes
+OOMScoreAdjust=-1000
+#ExecStartPre=/bin/sleep 2
+
+ExecStart=/home/ubuntu/bin/wrapper_service.sh cam_rec
+
+Restart=always
+RestartSec=2s
+
+[Install]
+WantedBy=graphical.target
+

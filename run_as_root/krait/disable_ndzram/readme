@@ -1,0 +1,3 @@
+
+DT-725 - ndzram is under experiment and it should only be enabled to Krait2 IN. But it was enabled in Krait_US, Krait2_US in x.6.6.rc.6 releases through RAR task copy_ndzramconfig.  
+Now through another RAR task it is being disabled.  

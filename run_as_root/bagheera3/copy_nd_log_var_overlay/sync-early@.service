@@ -1,0 +1,12 @@
+[Unit]
+Description=Sync and drain %i before overlay mount
+DefaultDependencies=no
+After=media-data.mount local-fs-pre.target
+Requires=media-data.mount
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/sync-early.sh %i
+
+[Install]
+WantedBy=local-fs.target

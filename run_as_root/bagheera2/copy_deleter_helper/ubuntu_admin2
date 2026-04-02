@@ -1,0 +1,1 @@
+ubuntu ALL=NOPASSWD:/usr/bin/deleter_helper.sh

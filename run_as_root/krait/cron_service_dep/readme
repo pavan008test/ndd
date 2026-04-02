@@ -1,0 +1,1 @@
+#KRT-382, KRT-165, KRT-548 : Crontab tasks will be delayed by 20 secs until /data and / partitions are mounted in rw mode. If both partitions are mounted as rw it will immediately start crond.service.

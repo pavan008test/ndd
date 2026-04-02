@@ -1,0 +1,1 @@
+*/5 * * * * root su -c /etc/cron.daily/logrotate

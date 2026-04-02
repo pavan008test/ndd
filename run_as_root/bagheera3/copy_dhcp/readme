@@ -1,0 +1,10 @@
+Author : Dhanyath R
+Author Email : dhanyath.ravi@netradyne.com
+
+JIRA ID : BGR3-1374 : DHub V2 Ethernet over USB fails in case of stale IP assigned
+
+Description : 
+
+Copied dhcpd.conf to /etc/dhcp/ and verified the file using its MD5 checksum - 8c9d9b9283455d8a18a465fd8663a669
+Copied dhcp_setup.sh to /bin/vendor/ and validated the MD5 checksum - ed5e2214001ded10c3c7fb82650fe5af
+Copied start-dhcpd@.service to /etc/systemd/system/ for DHCP service management - 3823506a32ea7d4867ee491c2657ac99

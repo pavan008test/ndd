@@ -1,0 +1,14 @@
+[Unit]
+Description=OverlayFS for /var/backups
+After=sync-early@var-backups.service media-data.mount local-fs-pre.target
+Requires=media-data.mount
+Before=local-fs.target
+
+[Mount]
+What=overlay
+Where=/var/backups
+Type=overlay
+Options=lowerdir=/var/backups,upperdir=/media/data/overlay_var_backups/upper,workdir=/media/data/overlay_var_backups/work
+
+[Install]
+WantedBy=local-fs.target

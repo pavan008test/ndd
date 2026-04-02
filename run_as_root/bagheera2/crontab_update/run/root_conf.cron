@@ -1,0 +1,11 @@
+@reboot [ -f /home/ubuntu/.nddevice/gbusoverride ] && sudo echo 537600000 >  /sys/kernel/debug/clock/gbus/max
+#@reboot rm -rf /home/iriscli/ND_INPUT/*
+@reboot rm -rf /home/iriscli/ND_OUTPUT/*
+@reboot [ -f /home/ubuntu/.nddevice/com_backup ] && [ -d /home/ubuntu/.nddevice/backup/ ] && rm -rf /home/ubuntu/.nddevice/backup/*
+@reboot [ -s /home/ubuntu/.nddevice/com_reboot ] && /home/ubuntu/.nddevice/reboot.sh
+@reboot [ -f /home/ubuntu/.nddevice/com_root ] && sudo /home/ubuntu/.nddevice/command.sh
+@reboot /home/ubuntu/bin/standby_setup.sh
+@reboot /home/ubuntu/bin/core_dump.sh
+@reboot export PATH=/usr/local/cuda-7.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/ubuntu/bin ; export LD_LIBRARY_PATH=/usr/local/cuda-7.0/lib ; export ND_DEVICE_REL_PATH=/home/ubuntu/.nddevice ; export ND_CONFIG_PATH=$ND_DEVICE_REL_PATH/latest/nd_config.ini ; export ND_INPUT_PATH=/home/iriscli/ND_INPUT ; export ND_OUTPUT_PATH=/home/iriscli/ND_OUTPUT ; /home/ubuntu/bin/wrapper_cleanupstate
+*/1 *  * * * export PATH=/usr/local/cuda-7.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/ubuntu/bin ; export LD_LIBRARY_PATH=/usr/local/cuda-7.0/lib ; export ND_DEVICE_REL_PATH=/home/ubuntu/.nddevice ; export ND_CONFIG_PATH=$ND_DEVICE_REL_PATH/latest/nd_config.ini ; export ND_INPUT_PATH=/home/iriscli/ND_INPUT ; export ND_OUTPUT_PATH=/home/iriscli/ND_OUTPUT ; /home/ubuntu/bin/wrapper_otacheck
+*/1 * * * * export PATH=/usr/local/cuda-7.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/ubuntu/bin ; export LD_LIBRARY_PATH=/usr/local/cuda-7.0/lib ; export ND_DEVICE_REL_PATH=/home/ubuntu/.nddevice ; export ND_CONFIG_PATH=$ND_DEVICE_REL_PATH/latest/nd_config.ini ; export ND_INPUT_PATH=/home/iriscli/ND_INPUT ; export ND_OUTPUT_PATH=/home/iriscli/ND_OUTPUT ; /home/ubuntu/.nddevice/latest/keep_alive_manager

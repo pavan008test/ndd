@@ -1,0 +1,4 @@
+#KRT-915: Run as root task to rename the fan_control binary with fan_control_void.
+
+Description: Before taking the control of fan with a seperate service it was controlled by 'fan_control' binary present under /usr/bin/. Now as its controlled with a seperate service, /usr/bin/fan_control is no longer needed and to minimize its effect (if present with same name), renaming this file into fan_control_void.
+

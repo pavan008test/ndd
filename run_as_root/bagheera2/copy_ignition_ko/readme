@@ -1,0 +1,4 @@
+Through the rar_task the copying the gpio-ignition.ko file 
+This is the first time we are adding this ko in D430 
+md5sum : 2fb64901a07692836780214e5635cbee
+jira-id : https://netradyne.atlassian.net/browse/DT-1368 

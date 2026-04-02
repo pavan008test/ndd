@@ -1,0 +1,8 @@
+Author : Dhanyath R
+Author EMail : dhanyath.ravi@netradyne.com
+
+JIRA Id : DT-2372 : RunAsRoot task for overriding in bluetooth.service
+
+Description : 
+Copying nv-bluetooth-service.conf to path /lib/systemd/system/ 
+Md5sum of File 72190dd81f65b44a57277088b8e107dd

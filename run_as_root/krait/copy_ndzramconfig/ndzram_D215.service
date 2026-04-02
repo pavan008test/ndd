@@ -1,0 +1,10 @@
+[Unit]
+Description=NDService-zram
+After=clik.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/ndzramconfig.sh
+
+[Install]
+WantedBy=multi-user.target

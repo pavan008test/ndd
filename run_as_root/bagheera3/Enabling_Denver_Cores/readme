@@ -1,0 +1,24 @@
+jira-id: DT-764
+RUN.SH
+	check if md5sum of nvpmodel_t186_p3636.conf and the nvpmodel_org.conf in RAR folder is same and log it
+	Take backup of /etc/nvpmodel/nvpmodel_t186_p3636.conf by renaming it as nvpmodel_t186_p3636_backup.conf
+	log the output of nvpmodel -q –verbose
+	now place the nvpmodel_t186_p3636.conf in the RAR folder in /etc/nvpmodel 	
+	Run the command nvpmodel -m 3
+	log the output of nvpmodel -q –verbose
+	output of : cat /sys/devices/system/cpu/cpu1/online should be 1
+	output of : cat /sys/devices/system/cpu/cpu2/online should be 1
+	output of : cat /sys/devices/17000000.gp10b/devfreq/17000000.gp10b/max_freq should be 1134750000
+	run the systemd_override_b3.sh script
+	reboot
+ 
+REVERT.SH
+	remove current /etc/nvpmodel/nvpmodel_t186_p3636.conf and rename backup back to its original name
+	Run the command nvpmodel -m 3
+	log the output of nvpmodel -q –verbose
+	output of : cat /sys/devices/system/cpu/cpu1/online should be 0
+	output of : cat /sys/devices/system/cpu/cpu2/online should be 0
+	output of : cat /sys/devices/17000000.gp10b/devfreq/17000000.gp10b/max_freq should be 1134750000
+	run the command find /etc/systemd/system/ -type d -name "*.service.d" | xargs rm -rf
+    reboot
+Steps followed as above for the run.sh and revert.sh 

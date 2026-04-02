@@ -1,0 +1,129 @@
+#! /bin/sh
+### BEGIN INIT INFO
+# Provides:			startup
+# Required-Start:
+# Required-Stop:
+# Default-Start:	2 3 4 5
+# Default-Stop:		0 6
+# Short-Description:	NTDI_BAG2 specific script
+# Description:
+### END INIT INFO
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin:/bin/vendor
+TEMP_DRIVER=/lib/modules/`uname -r`/kernel/drivers/hwmon/tmp102.ko
+
+do_start() {
+
+	mkdir -p /fru_check/tmp
+    mkdir -p /fru_check/tmp2
+	insmod /lib/modules/misc/gpio_ntdi.ko
+
+	#FRU will be programmed from EEPROM
+    	fru_check
+        if [ $? -ne 0 ]; then
+            echo "Fru Failed";
+        fi;
+
+	echo 0 > /sys/class/pwm/pwmchip0/export
+	cd /sys/class/pwm/pwmchip0/pwm0
+	echo 20000 > period
+	echo 1 > duty_cycle
+	echo 1 > enable
+
+	mw_test  0x0c302078  0x00000401
+	mw_test  0x0c301080  0x00000401
+
+	#To confirm the detection of GPIO EXPANDER in I2C bus 1
+	i2cget -y -f 1 0x70 0x00
+	echo "Setting max and min threshold for tmp102"
+	echo 70000 > /sys/bus/i2c/devices/0-0049/hwmon/hwmon3/temp1_max
+	echo 65000 > /sys/bus/i2c/devices/0-0049/hwmon/hwmon3/temp1_max_hyst
+
+	# Registering callback for monitoring carrier reset check
+	carrier_reset_check &
+
+	# Capture and storing of Boot Logs
+	boot_log &
+
+	# Handling indication of kernel booted up through LED
+	killall -s 9 gpio_toggle_thread
+
+	chmod 755 /image_upgrade/sierra/lte_gps_sierra_upgrade.sh
+	chmod a+x /etc/wifi_modules.sh
+	systemctl restart test.service
+	
+    #Making previous boot status env variable to 0
+    echo 0 > /sys/block/mmcblk0boot1/force_ro
+    fw_setenv p_prev_boot_status 0
+
+    #Bluetooth firmware loading
+    gpio_test -n 388 -o 1
+    gpio_test -n 396 -o 0
+    gpio_test -n 396 -o 1
+
+    #Configuring I2C-8 with 100 KHz
+    echo 100000 > /sys/bus/i2c/devices/i2c-8/bus_clk_rate
+    #Configuring MIPI Re-timer after reset
+    gpio_test -n 443 -o 1
+    sleep 1
+    gpio_test -n 443 -o 0
+    sleep 1
+    i2cset -f -y 8 0x6c 0x09 0x00
+    i2cset -f -y 8 0x6c 0x0a 0x51
+    i2cset -f -y 8 0x6c 0x0b 0x55
+    i2cset -f -y 8 0x6c 0x0e 0x11
+
+    #Configuring I2C-6 with 100 KHz
+    echo 100000 > /sys/bus/i2c/devices/i2c-6/bus_clk_rate
+    #Configuring MIPI Re-timer after reset
+    gpio_test -n 267 -o 1
+    sleep 1
+    gpio_test -n 267 -o 0
+    sleep 1
+    i2cset -f -y 8 0x6c 0x09 0x00
+    i2cset -f -y 8 0x6c 0x0a 0x51
+    i2cset -f -y 8 0x6c 0x0b 0x55
+    i2cset -f -y 8 0x6c 0x0e 0x11
+
+
+
+	#bluetooth firmware loading
+	timeout 10 /bin/vendor/cypress_brcm -d --baudrate 115200 --use_baudrate_for_download --patchram /lib/firmware/cypress/CYW4354_003.001.012.0433.1422.hcd --no2bytes /dev/ttyTHS3
+	timeout 2 hciattach /dev/ttyTHS3 any 115200 flow
+	sleep 1
+    /usr/bin/pulseaudio --start
+	if [ $? -eq 0 ]; then
+		echo "++++pulseaudio daemon started++++"
+	else
+		echo "++++pulseaudio daemon not started++++"
+	fi
+
+
+}
+
+do_stop () {
+	pgrep -x carrier_reset_check | xargs kill -9
+	pgrep -x boot_log | xargs kill -9
+	echo "Stopping the startup service"
+}
+
+case "$1" in
+	start|"")
+		do_start
+                touch /dev/shm/ntdi_icdc.done
+		;;
+	restart|reload|force-reload)
+		echo "Error: argument '$1' not supported" >&2
+		exit 3
+		;;
+	stop)
+		do_stop
+		;;
+	status)
+		# No-op
+		;;
+	*)
+		echo "Usage: startup.sh [start|stop]" >&2
+		exit 3
+		;;
+esac

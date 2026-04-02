@@ -1,0 +1,5 @@
+Ticket : DT-2099 - Update with latest binaries from the D450
+
+Description : 
+Copying snd-soc-integrated-tasdevice.ko to path /lib/modules/4.9.299-tegra/kernel/sound/soc/codecs/tas2563
+md5um : dd66d8fd4bb0a78b0af588c9459f4d73

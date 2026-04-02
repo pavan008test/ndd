@@ -1,0 +1,21 @@
+[Unit]
+Description=NDService-wifi_mgr
+
+After=dcam.service qmmf-server.service systemrw.mount leprop.service
+Wants=qmmf-server.service systemrw.mount
+
+[Service]
+Type=simple
+
+KillMode=mixed
+SendSIGKILL=yes
+
+ExecStartPre=/bin/sleep 5
+ExecStart=/home/ubuntu/bin/wrapper_service.sh wifi_mgr
+
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
+

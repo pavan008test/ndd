@@ -1,0 +1,18 @@
+[Unit]
+Description=NDService-Uploader
+
+[Service]
+TimeoutStartSec=1
+TimeoutStopSec=5
+KillMode=mixed
+SendSIGKILL=yes
+
+ExecStart=/home/ubuntu/bin/wrapper_service.sh uploader
+
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target
+
+

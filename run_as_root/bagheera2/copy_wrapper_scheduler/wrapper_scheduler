@@ -1,0 +1,116 @@
+#!/usr/bin/python
+#############################################################################
+#
+#       @Wrapper of scheduler call
+#       check if there is any issue in $ND_DEVICE_REL_PATH/latest/scheduler 
+#	than we can call $ND_DEVICE_REL_PATH/bootstrap/scheduler
+#
+############################################################################
+
+
+import os
+import re
+import subprocess
+import sys
+import logging
+import logging.handlers
+import shutil
+import time
+from ConfigParser import ConfigParser
+import pycurl
+import json
+
+"""
+Logger info Setup
+"""
+
+def logger_setup(path="/tmp"):
+    if path is None:
+        print("log path doesn't exits, please create it")
+        exit(1)
+    # Deafults
+    LOG_FILENAME = "%s/wrapper_scheduler.log"%(path)
+    LOG_LEVEL = logging.INFO  # Could be e.g. "DEBUG" or "WARNING"
+
+    #Logger file.
+    logger = logging.getLogger(__name__)
+
+    # Set the log level to LOG_LEVEL
+    logger.setLevel(LOG_LEVEL)
+    logging.basicConfig(filename=LOG_FILENAME, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
+
+    # create console handler and set level to debug
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+
+    # create formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    # add formatter to ch
+    ch.setFormatter(formatter)
+
+    # add ch to logger
+    logger.addHandler(ch)
+    return logger
+
+
+"""
+        Main function
+"""
+def main():
+
+    State  = False
+
+    #folder for device related software
+    ND_DEVICE_REL_PATH = os.environ.get('ND_DEVICE_REL_PATH')
+
+    #Logger Setup
+    logger = logger_setup("%s/log"%ND_DEVICE_REL_PATH)
+
+    logger.info("::====================::Wrapper_scheduler Starting::====================::")
+    print("::====================::Wrapper_scheduler Starting::====================::")
+
+    #input file directory for processing
+    ND_INPUT_PATH = os.environ.get('ND_INPUT_PATH')
+
+    #input file directory for processing
+    ND_OUTPUT_PATH = os.environ['ND_OUTPUT_PATH']
+
+
+    #current time stamp
+    proc = subprocess.Popen(["date"], stdout=subprocess.PIPE, shell=True)
+    (currTime, err) = proc.communicate()
+
+    try:
+        # Open a file
+        fo = open("%s/log/timer2.log"%ND_DEVICE_REL_PATH, "a+")
+        #write
+        fo.write("Wrapper_scheduler with time = %s" %currTime)
+        logger.debug( "Wrapper_scheduler with time = %s " %currTime)
+        print ("Wrapper_scheduler with time = %s "%currTime)
+
+        # Close opend file
+        fo.close()
+    except:
+        print ("f0.close throws exception")
+
+    #filename
+    defaultExeFilename = "%s/bootstrap/scheduler"%ND_DEVICE_REL_PATH 
+    exeFileName = "%s/latest/scheduler"%ND_DEVICE_REL_PATH
+
+    #Check if $ND_DEVICE_REL_PATH/latest/scheduler is proper 
+    logger.info( "Checking %s"%exeFileName )
+    print( "Checking %s"%exeFileName )
+    if( os.path.isfile(exeFileName) and  os.access(exeFileName, os.X_OK) and (os.path.getsize(exeFileName) != 0 ) ):
+	logger.info( "latest File '%s' exists. Calling it ..."%exeFileName) 
+	print( "latest File '%s' exists. Calling it ..."%exeFileName) 
+    	os.system("nohup %s &"%exeFileName);
+    else:
+	logger.info( "not latest File '%s' exists. Calling bootstrap file ..."%exeFileName) 
+	print( "not latest File '%s' exists. Calling bootstrap file ..."%exeFileName) 
+    	os.system("nohup %s &"%defaultExeFilename);
+
+    logger.info("::====================::Wrapper_scheduler Shutting Down::====================::")
+
+if __name__ == '__main__':
+    main();

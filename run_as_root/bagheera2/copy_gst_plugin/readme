@@ -1,0 +1,5 @@
+BGR2-84 - copying the lib needed for HDmaps and need to co exists with Mainline. 
+
+4cb17388754532b090d14297aef5ef01  libgstvideo4linux2.so -- HDmaps coexits
+dec549691a6b5ffdd3e017add3574003  libgstnvvideo4linux2.so -- Live streaming support
+

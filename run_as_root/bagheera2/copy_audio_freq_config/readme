@@ -1,0 +1,4 @@
+This wifi_modules.sh is used to config audio setting. In this file we are changing MVC1 Vol (its mic volume to reduce noise or distortion) by reducing the mic volume.
+
+Jira ticket : BGR2-167
+

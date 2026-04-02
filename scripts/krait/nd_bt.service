@@ -1,0 +1,20 @@
+[Unit]
+Description=NDService-bt
+
+After=dcam.service qmmf-server.service systemrw.mount leprop.service
+Wants=qmmf-server.service systemrw.mount
+
+[Service]
+TimeoutStartSec=1
+TimeoutStopSec=5
+KillMode=control-group
+SendSIGKILL=yes
+
+ExecStart=/home/ubuntu/bin/wrapper_service.sh nd_bt
+ExecStop=/home/ubuntu/.nddevice/latest/service/nd_bt/nd_bt_cleanup.sh
+
+Restart=always
+RestartSec=3s
+
+[Install]
+WantedBy=multi-user.target

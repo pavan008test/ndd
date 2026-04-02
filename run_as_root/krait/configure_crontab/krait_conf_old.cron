@@ -1,0 +1,12 @@
+*/1 *  * * * export PATH=/usr/sbin:/usr/bin:/sbin:/bin:/home/ubuntu/bin ; export ND_DEVICE_REL_PATH=/home/ubuntu/.nddevice ; export ND_CONFIG_PATH=$ND_DEVICE_REL_PATH/latest/nd_config.ini ; export ND_INPUT_PATH=/home/iriscli/ND_INPUT ; export ND_OUTPUT_PATH=/home/iriscli/ND_OUTPUT ; /home/ubuntu/bin/wrapper_scheduler
+@reboot export PATH=/usr/sbin:/usr/bin:/sbin:/bin:/home/ubuntu/bin ; export ND_DEVICE_REL_PATH=/home/ubuntu/.nddevice ; export ND_CONFIG_PATH=$ND_DEVICE_REL_PATH/latest/nd_config.ini ; export ND_INPUT_PATH=/home/iriscli/ND_INPUT ; export ND_OUTPUT_PATH=/home/iriscli/ND_OUTPUT ; /home/ubuntu/bin/wrapper_cleanupstate
+*/1 *  * * * export PATH=/usr/sbin:/usr/bin:/sbin:/bin:/home/ubuntu/bin ; export ND_DEVICE_REL_PATH=/home/ubuntu/.nddevice ; export ND_CONFIG_PATH=$ND_DEVICE_REL_PATH/latest/nd_config.ini ; export ND_INPUT_PATH=/home/iriscli/ND_INPUT ; export ND_OUTPUT_PATH=/home/iriscli/ND_OUTPUT ; /home/ubuntu/bin/wrapper_otacheck
+#@reboot touch /home/ubuntu/.nddevice/boot_status && echo 0 > /home/ubuntu/.nddevice/boot_status
+#@reboot [ -f /home/ubuntu/.nddevice/session_lte ] && sudo /home/ubuntu/bin/disable_wifi_turn_on_lte.sh
+#@reboot [ ! -f /home/ubuntu/.nddevice/session_lte ] && sudo /home/ubuntu/bin/disable_lte_turn_wifi_on.sh
+@reboot rm -rf /home/iriscli/ND_INPUT/*
+@reboot rm -rf /home/iriscli/ND_OUTPUT/*
+@reboot [ -d /home/ubuntu/.nddevice/backup/ ] && rm -rf /home/ubuntu/.nddevice/backup/*
+@reboot /home/ubuntu/.nddevice/reboot.sh
+#@reboot [ -f /home/ubuntu/.nddevice/com_root ] && sudo /home/ubuntu/.nddevice/command.sh
+*/5 *  * * * /home/ubuntu/bin/clean_ib.sh

@@ -1,0 +1,13 @@
+This task is created to complete the following reponsibities:
+
++-------------------------+-----------------------------------------------------------------+-------------------------+
+|       cron run          |                   responsibilites                               |      cron revert        |
++-------------------------+-----------------------------------------------------------------+-------------------------+
+|                         | --> install wrapper_otacheck      : trigger on every minute     |                         |
+|   run/root_conf.cron    | --> install keep_alive_manager    : trigger on every minute     |  revert/root_conf.cron  |
+|                         | --> install wrapper_cleanupstate  : trigger on every reboot     |                         |
++-------------------------+-----------------------------------------------------------------+-------------------------+
+|                         | --> remove wrapper_scheduler     :  remove entry from user cron |                         |
+|     revert/conf.cron    | --> remove wrapper_cleanupstate  :  moved to root crontab       |     revert/conf.cron    |
+|                         | --> remove wrapper_otacheck      :  moved to root crontab       |                         |
++-------------------------+-----------------------------------------------------------------+-------------------------+

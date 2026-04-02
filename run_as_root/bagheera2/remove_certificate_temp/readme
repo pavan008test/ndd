@@ -1,0 +1,3 @@
+This is to remove the temp.txt in /home/ubuntu/.nddevice/certificate/temp.txt
+
+Ticket : DT-2164 - Need RAR task support to remove existing temp.txt in device

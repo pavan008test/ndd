@@ -1,0 +1,6 @@
+Ticket : DT-2170 - Adding script to add camera_crash_db 
+
+Description : 
+
+Scripts are different for bagheera and krait device and it can be identified by suffix of filename. 
+Script with prefix “split” is supposed to be triggered during OTA update but in case of OTA update failure one with prefix “merge”  should be triggered to revert back the changes.The script takes camera_crash_count entries from gen_property.db and puts it into newly created camera_crash.db.

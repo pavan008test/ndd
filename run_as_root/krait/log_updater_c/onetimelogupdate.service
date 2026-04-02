@@ -1,0 +1,13 @@
+[Unit]
+Description=NDService-onetimelogupdate
+
+[Service]
+Type=simple
+TimeoutStartSec=5
+TimeoutStopSec=5
+KillMode=mixed
+SendSIGKILL=yes
+
+ExecStartPre=/bin/sleep 2
+
+ExecStart=/dev/shm/updater_logs_move.sh

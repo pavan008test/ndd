@@ -1,0 +1,119 @@
+
+This is a task to configure the DNS support for ipv6. It create a new service systemd-resolved to resolve DNS. It can be tested as in the below steps.
+This also fixes KRT2-47
+
+Test Procedure
+
+~ # systemd-resolve --status
+[[0;1;39mGlobal[[0m
+          DNSSEC NTA: 10.in-addr.arpa
+                      16.172.in-addr.arpa
+                      168.192.in-addr.arpa
+                      17.172.in-addr.arpa
+                      18.172.in-addr.arpa
+                      19.172.in-addr.arpa
+                      20.172.in-addr.arpa
+                      21.172.in-addr.arpa
+                      22.172.in-addr.arpa
+                      23.172.in-addr.arpa
+                      24.172.in-addr.arpa
+                      25.172.in-addr.arpa
+                      26.172.in-addr.arpa
+                      27.172.in-addr.arpa
+                      28.172.in-addr.arpa
+                      29.172.in-addr.arpa
+                      30.172.in-addr.arpa
+                      31.172.in-addr.arpa
+                      corp
+                      d.f.ip6.arpa
+                      home
+                      internal
+                      intranet
+                      lan
+                      local
+                      private
+                      test
+
+[[0;1;39mLink 14 (usb0)[[0m
+      Current Scopes: none
+       LLMNR setting: yes
+MulticastDNS setting: no
+      DNSSEC setting: no
+    DNSSEC supported: no
+
+[[0;1;39mLink 13 (eth0)[[0m
+      Current Scopes: DNS LLMNR/IPv4 LLMNR/IPv6
+       LLMNR setting: yes
+MulticastDNS setting: no
+      DNSSEC setting: no
+    DNSSEC supported: no
+         DNS Servers: 49.45.0.1
+                      2405:200:800::1
+:
+:
+
+
+Testing Procedure....
+
+~# ifconfig eth0
+eth0      Link encap:Ethernet  HWaddr 32:21:9e:4e:49:08  
+          inet addr:10.3.12.214  Bcast:10.3.12.215  Mask:255.255.255.252
+          inet6 addr: 2409:4070:4401:264a:3021:9eff:fe4e:4908/64 Scope:Global
+          inet6 addr: fe80::3021:9eff:fe4e:4908/64 Scope:Link
+          UP BROADCAST RUNNING PROMISC ALLMULTI MULTICAST  MTU:1422  Metric:1
+          RX packets:1018 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:1195 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:173369 (169.3 KiB)  TX bytes:429262 (419.2 KiB)
+
+~ # ping google.com // ipv4 works
+PING google.com (142.250.195.238) 56(84) bytes of data.
+64 bytes from maa03s43-in-f14.1e100.net (142.250.195.238): icmp_seq=1 ttl=112 time=62.0 ms
+^C
+--- google.com ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 62.039/62.039/62.039/0.000 ms
+
+~ # ping6 google.com // ipv6 works
+PING google.com(bom07s28-in-x0e.1e100.net) 56 data bytes
+64 bytes from bom07s28-in-x0e.1e100.net: icmp_seq=1 ttl=117 time=78.1 ms
+^C
+--- google.com ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 78.133/78.133/78.133/0.000 ms
+
+~ # ifconfig eth0 0 // Disabled ipv4... ipv6 still works...
+
+~ # ping6 google.com // ip6 address resolution succeeds.
+PING google.com(maa05s23-in-x0e.1e100.net) 56 data bytes
+64 bytes from maa05s23-in-x0e.1e100.net: icmp_seq=1 ttl=116 time=68.3 ms
+^C
+--- google.com ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 68.319/68.319/68.319/0.000 ms
+
+~ # ping google.com  // ipv4 address resolution fails..
+connect: Network is unreachable
+
+~ # ifconfig eth0 down // reconfigure the eth0 network..
+
+
+~ # ping google.com // ipv4 works
+PING google.com (142.250.195.238) 56(84) bytes of data.
+64 bytes from maa03s43-in-f14.1e100.net (142.250.195.238): icmp_seq=2 ttl=112 time=69.8 ms
+64 bytes from maa03s43-in-f14.1e100.net (142.250.195.238): icmp_seq=3 ttl=112 time=67.1 ms
+^C
+--- google.com ping statistics ---
+3 packets transmitted, 2 received, 33% packet loss, time 2002ms
+rtt min/avg/max/mdev = 67.172/68.532/69.892/1.360 ms
+
+~ # ping6 google.com // ipv6 works
+PING google.com(maa03s43-in-x0e.1e100.net) 56 data bytes
+64 bytes from maa03s43-in-x0e.1e100.net: icmp_seq=1 ttl=117 time=85.0 ms
+^C
+--- google.com ping statistics ---
+1 packets transmitted, 1 received, 0% packet loss, time 0ms
+rtt min/avg/max/mdev = 85.058/85.058/85.058/0.000 ms
+
+
+

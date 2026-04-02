@@ -1,0 +1,1 @@
+sed -i  's/if \[ "$value" -ne 0 \]; then/if \[ true \]; then/g' /home/ubuntu/.nddevice/latest/service/conn_mgr/conn_mgr.sh

@@ -1,0 +1,9 @@
+[Unit]
+Description=NDService-onetime_service
+
+[Service]
+Type=oneshot
+ExecStart=/home/ubuntu/bin/wrapper_service.sh onetime_service
+
+[Install]
+WantedBy=multi-user.target 

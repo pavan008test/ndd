@@ -1,0 +1,22 @@
+{
+    "accessories": [
+        "BLE_BUTTON",
+        "DMS_CAMERA",
+        "VBUS",
+        "DHUBX"
+    ],
+    "support_dms_video_flip": true,
+    "support_dms_recalibrate": true,
+    "features": {
+        "DMS_CAMERA": {
+            "rotate": true,
+            "recalibrate": true
+        },
+        "DIAGNOSTICS": {
+            "custom_diagnostics": true
+        },
+        "ELD": {
+               "vdr_troubleshoot": true
+        }
+    }
+}

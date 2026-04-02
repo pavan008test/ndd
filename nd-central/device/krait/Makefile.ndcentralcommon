@@ -1,0 +1,54 @@
+include $(BASE)/Makefile.common
+
+ifeq "$(MAKECMDGOALS)" "krait_32"
+    PRODUCT_FOLDER = krait
+
+    QMMF_SDK_PATH := $(BASE)/../cross_compiler/krait/lib32-qmmf-sdk
+    QMMF_LIB_PATH1 = ./qmmf_lib
+    QMMF_LIB_PATH2 = $(QMMF_SDK_PATH)/git-r0/package/usr/lib
+    QMMF_LIB_PATH3 = $(QMMF_SDK_PATH)/git-r0/lib32-recipe-sysroot/usr/lib
+    KVS_DIR_PATH = $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/krait/packages/kvs_sdk
+
+    CFLAGS += -g -DTEMP_FIX_ADJUST_BITRATE
+
+    LDFLAGS += $(addprefix -L, $(QMMF_LIB_PATH1))
+    LDFLAGS += $(addprefix -L, $(QMMF_LIB_PATH2))
+    LDFLAGS += $(addprefix -L, $(QMMF_LIB_PATH3))
+    LDFLAGS += $(addprefix -L, $(KVS_LIB_PATH))
+
+    LDFLAGS += -lion -lselinux -lcairo -lqmmf_recorder_client -lqmmf_recorder_service -lqmmf_camera_adaptor -lcamera_client -lcamera_metadata -lqmmf_utils -lqmmf_memory_interface -lhardware -lqmmf_display_client -llog -lbinder -lutils -lcutils -lgbm -lwayland-client -lgbm-buffer-backend-protocol -lpixman-1 -lfontconfig -lfreetype -lpng16 -lz -lqmmf_codec_adaptor -lqmmf_audio_client -lqmmf_overlay -lqmmf_exif_generator -lqmmf_common_resizer_neon -lqmmf_common_resizer_c2d -lC2D2 -lqmmf_common_resizer_fastcv -lfastcvopt -lqmmf_camera_hal_reproc -lqmmf_postproc_test -lqmmf_postproc_frame_skip -ljsoncpp -lqmmf_postproc_algo -lwayland-server -lexpat -lgsl -lgthread-2.0 -lfastcvdsp_stub -ladsprpc -lsync -lZipper-static -Wl,--start-group -lcproducer -Wl,--end-group
+
+    LDFLAGS += -lgobject-2.0 -lglib-2.0 -ltinyalsa
+    LDFLAGS += -L$(PROTOBUF)/krait_1/lib/arm32 -lprotobuf 
+    LDFLAGS += -L$(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/krait/lib/arm32 -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_imgcodecs -lzbar
+
+    C_INCLUDES += $(QMMF_SDK_PATH)/git-r0/lib32-recipe-sysroot/usr/include $(QMMF_SDK_PATH)/git-r0/package/usr/include $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/common/lib_src/zipper/zipper
+    C_INCLUDES += $(Ndcentral_BASE)/../../common/inc $(Ndcentral_BASE)/../inc/krait $(Ndcentral_BASE)/inc
+    C_INCLUDES += $(ND_PROTO)/ #$(PROTOBUF)/inc
+    C_INCLUDES += $(KVS_DIR_PATH)/include/src/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/client/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/common/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/utils/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/state/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/trace/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/mkvgen/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/view/include
+    C_INCLUDES += $(KVS_DIR_PATH)/include/dependency/libkvspic/kvspic-src/src/heap/include
+
+    C_INCLUDES += $(ND_CORE_LIB_ROOT)/cpp/inc/qrscanner
+
+    OUT=$(Ndcentral_BASE)/out
+
+else ifeq "$(MAKECMDGOALS)" "krait_64"
+    PRODUCT_FOLDER = krait
+
+else ifeq "$(MAKECMDGOALS)" "bagheera2"
+    PRODUCT_FOLDER = bagheera2
+
+
+else ifeq "$(MAKECMDGOALS)" "x86"
+    PRODUCT_FOLDER = bagheera2
+
+else ifeq "$(MAKECMDGOALS)" "bagheera"
+    PRODUCT_FOLDER = bagheera
+endif

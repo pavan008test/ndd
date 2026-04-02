@@ -1,0 +1,11 @@
+
+[Unit]
+Description=##########___ND_APPLICATION_REBOOT___##########
+StopWhenUnneeded=yes
+
+[Service]
+Type=oneshot
+StandardOutput=syslog
+RemainAfterExit=yes
+ExecStart=/home/ubuntu/.nddevice/latest/service/nd_app_reboot/nd_app_reboot.sh
+

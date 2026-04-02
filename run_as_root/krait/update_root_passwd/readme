@@ -1,0 +1,4 @@
+#KRT-1009: This run_as_root task is used to update the Krait device root password.
+
+
+Note: Tested on K2 device.

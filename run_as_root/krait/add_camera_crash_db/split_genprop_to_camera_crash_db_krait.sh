@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# Move only CAMx_CRASH_COUNT entries from GENPROP to CAMERA_CRASH_DB
+
+sqlite3 "" << EndOfCommands
+ATTACH '/data/nd_files/db/gen_property.db' AS db1;
+ATTACH '/data/nd_files/db/camera_crash.db' AS db2;
+
+CREATE TABLE IF NOT EXISTS db2.CAMERA_CRASH_DB (
+    INDEXID INTEGER PRIMARY KEY AUTOINCREMENT,
+    PROPERTY TEXT NOT NULL,
+    DATA TEXT NOT NULL,
+    TIME BIGINT DEFAULT 0,
+    EPOCHTIME BIGINT DEFAULT 0
+);
+
+-- Step 1: Move only rows with CAMx_CRASH_COUNT to new DB
+INSERT INTO db2.CAMERA_CRASH_DB (PROPERTY, DATA, TIME, EPOCHTIME)
+SELECT PROPERTY, DATA, TIME, EPOCHTIME FROM db1.GENPROP
+WHERE PROPERTY LIKE 'CAM%_CRASH_COUNT';
+
+-- Step 2: Delete only those rows from original GENPROP
+DELETE FROM db1.GENPROP
+WHERE PROPERTY LIKE 'CAM%_CRASH_COUNT';
+
+EndOfCommands

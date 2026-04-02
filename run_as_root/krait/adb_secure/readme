@@ -1,0 +1,9 @@
+KRT-186 : This RAR task is added to set the security parameter for adb in which we can only access the device over adb if we have the private adbkeys in our development system. 
+
+Public keys is set in the device and private key is given to internal users to access the device. 
+ 
+Public keys is copied to /data/misc/adb/adb_keys and also /adb_keys. 
+
+ 
+/data/misc/adb/adb_keys can be appended with other user keys if necessary for external users.
+/adb_keys will not be touched which contains only vendor keys.

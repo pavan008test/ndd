@@ -1,0 +1,39 @@
+## Disable all devices
+ACTION=="add", SUBSYSTEMS=="usb", RUN+="/bin/sh -c 'for host in /sys/bus/usb/devices/usb*; do echo 0 > $host/authorized_default; done'"
+#ACTION=="add", SUBSYSTEM=="hidraw", ATTR{idVendor}=="*", ATTR{idProduct}=="*", RUN+="/bin/bash -c 'echo 0 > /sys$DEVPATH/authorized'"
+#ACTION=="add", SUBSYSTEM=="video4linux", ATTR{idVendor}=="*", ATTR{idProduct}=="*", RUN+="/bin/bash -c 'echo 0 > /sys$DEVPATH/authorized'"
+
+## Enable what are needed only
+
+# Enable Lanai internal hubs
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="1d6b", ATTR{idProduct}=="0002", RUN+="/bin/bash -c 'echo 1 > /sys$DEVPATH/authorized'"
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="1d6b", ATTR{idProduct}=="0003", RUN+="/bin/bash -c 'echo 1 > /sys$DEVPATH/authorized'"
+# Enable USB_HUB
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05e3", ATTR{idProduct}=="0610", RUN+="/bin/bash -c 'echo 1 > /sys$DEVPATH/authorized'"
+# Enable DMS
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0c45", ATTR{idProduct}=="6366", RUN+="/bin/bash -c 'echo 1 > /sys$DEVPATH/authorized'"
+# Enable FTDI
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0403", ATTR{idProduct}=="6030", RUN+="/bin/bash -c 'echo 1 > /sys$DEVPATH/authorized'"
+# Enable Sierra -> Lumia2
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="1199", ATTR{idProduct}=="68c0", RUN+="/bin/bash -c 'echo 1 > /sys$DEVPATH/authorized'"
+# Enable CMEDIA_AUDIO2
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0d8c", ATTR{idProduct}=="0222", RUN+="/bin/bash -c 'echo 1 > /sys$DEVPATH/authorized'"
+# Enable CMEDIA_AUDIO3
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0d8c", ATTR{idProduct}=="01e8", RUN+="/bin/bash -c 'echo 1 > /sys$DEVPATH/authorized'"
+# Enable ND CAN
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="1a86", ATTR{idProduct}=="7523", RUN+="/bin/bash -c 'echo 1 > /sys$DEVPATH/authorized'"
+# Enable Quectel -> Lumia3
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="2c7c", ATTR{idProduct}=="0125", RUN+="/bin/bash -c 'echo 1 > /sys$DEVPATH/authorized'"
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="10c4", ATTR{idProduct}=="ea60", RUN+="/bin/bash -c 'echo 1 > /sys$DEVPATH/authorized'"
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0424", ATTR{idProduct}=="2422", RUN+="/bin/bash -c 'echo 1 > /sys$DEVPATH/authorized'"
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="05c6", ATTR{idProduct}=="9008", RUN+="/bin/bash -c 'echo 1 > /sys$DEVPATH/authorized'"
+# Enable USB to Ethernet
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0fe6", ATTR{idProduct}=="9900", RUN+="/bin/bash -c 'echo 1 > /sys$DEVPATH/authorized'"
+# Set-up DHCP Server for USB to ethernet
+ACTION=="add", SUBSYSTEM=="net", ATTRS{idVendor}=="0fe6", ATTRS{idProduct}=="9900", RUN+="/bin/systemctl start start-dhcpd@%k.service"
+
+# Create node for the hub
+SUBSYSTEM=="hidraw*", ACTION=="add", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6030", SYMLINK+="ftdi_gpio"
+SUBSYSTEM=="hidraw*", ACTION=="remove", ATTRS{idVendor}=="0403", ATTRS{idProduct}=="6030", RUN+="/bin/rm /dev/ftdi_gpio"
+# Disable DMS Autosuspend Feature
+ACTION=="add", SUBSYSTEM=="usb", ATTR{idVendor}=="0c45", ATTR{idProduct}=="6366", RUN+="/bin/bash -c 'echo -1 > /sys$DEVPATH/power/autosuspend_delay_ms && echo on > /sys$DEVPATH/power/control'"

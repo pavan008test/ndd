@@ -1,0 +1,4 @@
+ RAR task to copy below gpio-ignition.ko to /lib/modules/4.9.299-tegra/kernel/drivers/bag2_vendor/ignition 
+https://netradyne.atlassian.net/browse/DT-2070
+md5sum : 9efdfd6961c8c1f2aa6d3fae7cb51696 - gpio-ignition.ko
+

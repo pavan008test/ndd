@@ -1,0 +1,9 @@
+TIMEOUT 30
+DEFAULT primary
+
+LABEL primary
+      MENU LABEL primary kernel
+      LINUX /boot/Image
+      INITRD /boot/initrd
+      FDT /boot/dtb/tegra186-quill-p3489-0888-a00-00-base.dtb
+      APPEND ${cbootargs} root=/dev/mmcblk0p1 rw rootwait sdhci_tegra.en_boot_part_access=1 mem=4070M

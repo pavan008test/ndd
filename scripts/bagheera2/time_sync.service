@@ -1,0 +1,17 @@
+[Unit]
+Description=NDService-time_sync
+
+[Service]
+Type=simple
+KillMode=mixed
+SendSIGKILL=yes
+TimeoutStartSec=1
+TimeoutStopSec=5
+
+ExecStart=/home/ubuntu/bin/wrapper_service.sh time_sync
+
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

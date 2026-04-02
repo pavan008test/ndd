@@ -1,0 +1,5 @@
+DT-2952 : Update below .ko at /lib/modules/4.9.160-perf/kernel/drivers/iio/imu/inv_mpu_20602/
+inv-mpu-iio.ko  
+md5sum: 8cc8d2ced509ea908d44fb1ea6fba79d
+inv-mpu-iio-i2c-icm20602.ko 
+md5sum: de6a4f039d5c1ca76ea69ff41aa6e8d8

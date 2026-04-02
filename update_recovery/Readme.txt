@@ -1,0 +1,1 @@
+This service is created to recovery the run_as_root changes while OTA update through recovery_command.txt. If OTA files during the command.txt then recovery_command.txt is called and starts the update recovery service which execute the revert.sh scripts from the previously executed folders. Other related scripts are present in the run_as_root folder. 

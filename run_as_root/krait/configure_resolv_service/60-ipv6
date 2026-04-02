@@ -1,0 +1,7 @@
+
+#IPV6 Address Assignment on eth0 interface on eth0 UP
+
+if $if_up; then
+systemctl restart systemd-networkd
+fi
+

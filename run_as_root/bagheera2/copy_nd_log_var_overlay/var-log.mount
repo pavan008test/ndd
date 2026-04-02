@@ -1,0 +1,14 @@
+[Unit]
+Description=OverlayFS for /var/log
+After=sync-early@var-log.service media-data.mount local-fs-pre.target
+Requires=media-data.mount
+Before=systemd-journald.service rsyslog.service local-fs.target
+
+[Mount]
+What=overlay
+Where=/var/log
+Type=overlay
+Options=lowerdir=/var/log,upperdir=/media/data/overlay_var_log/upper,workdir=/media/data/overlay_var_log/work
+
+[Install]
+WantedBy=local-fs.target

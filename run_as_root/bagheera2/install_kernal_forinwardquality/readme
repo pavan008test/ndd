@@ -1,0 +1,11 @@
+Throgh the rar task installing nvidia-l4t-kernel_4.9.140-tegra-32.4.3-20200625213407_arm64.deb deb package to increase the inward night video quality
+jira_ticket : https://netradyne.atlassian.net/browse/DT-193
+nvidia-l4t-kernel_4.9.140-tegra-32.4.3-20200625213407_arm64.deb md5sum: 7a0adfb397bf916bc75d74dd9f2f194b
+
+Copying both Image and zImage from /boot/ to /boot/backup/ if /boot/ files are not matching to below md5sum. 
+f983dc6837d027e00c208d5e54f95d3b boot/Image
+74125eca559f231549d64fe1827d1698 boot/zImage
+
+This is because to avoid multiple copies from subsequent RC packages. 
+
+The md5sum's are taken from present new kernel deb files.This Kernel debs was given by gururaj shared in mail with subject "Special package for irled changes" for irled changes.

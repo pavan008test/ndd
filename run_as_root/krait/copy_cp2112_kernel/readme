@@ -1,0 +1,4 @@
+This task is to copy the kernel file hid-cp2112.ko to replace in this location -/usr/lib/modules/4.9.160-perf/kernel/drivers/hid/hid-cp2112.ko
+
+KRT-1603
+

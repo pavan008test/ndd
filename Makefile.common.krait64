@@ -1,0 +1,20 @@
+
+COMPILER_BASE=$(BASE)/../cross_compiler
+
+SYSROOT := $(COMPILER_BASE)/krait/recipe-sysroot
+SYSROOT_NATIVE := $(COMPILER_BASE)/krait/recipe-sysroot-native
+COMPILER_PATH := $(SYSROOT_NATIVE)/usr/bin/aarch64-oe-linux
+CXX := ${COMPILER_PATH}/aarch64-oe-linux-g++
+CC := $(COMPILER_PATH)/aarch64-oe-linux-gcc
+PROTOBUF_BASE ?= $(BASE)/protobuf/krait_1
+OPENSSL_LIB64_PATH := $(BASE)/../nd_core_utils/nd_thirdparty_lib/lib/openssl_1.1.1v/krait/arm64/lib/
+KVS_LIB_PATH := $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/lib/kvs_sdk/krait/lib64/
+
+C_INCLUDES += $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/krait/inc $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/krait/inc/jansson $(COMPILER_BASE)/krait/recipe-sysroot-native/usr/include
+C_INCLUDES += $(ND_CORE_LIB_ROOT)/cpp/inc/krait
+CFLAGS += -DKRAIT -DLIBSYS_API_EXTENSION --sysroot=$(SYSROOT)
+CFLAGS += -fstack-protector-strong -D_FORTIFY_SOURCE=2 -Wa,--noexecstack -Wformat -Wformat-security -Werror=format-security
+LDFLAGS += --sysroot=$(COMPILER_BASE)/krait/rootfs
+LDFLAGS += -L$(ND_CORE_LIB_ROOT)/cpp/out_64/ -L$(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/lib/krait/arm64 -lg726 -L$(COMPILER_BASE)/krait/rootfs/usr/lib64 -L$(COMPILER_BASE)/krait/curl/7.58.0-r0/package/usr/lib64/ -lsys -lpthread
+#LDFLAGS += $(KVS_LIB_PATH)/libcurl.so $(OPENSSL_LIB64_PATH)/libssl.so.1.1 $(OPENSSL_LIB64_PATH)/libcrypto.so.1.1
+LDFLAGS += -l:libcurl.so.4 $(OPENSSL_LIB64_PATH)/libssl.so.1.1 $(OPENSSL_LIB64_PATH)/libcrypto.so.1.1 -ltinyalsa

@@ -1,0 +1,22 @@
+[Unit]
+Description=NDService-ext_cam
+
+After=dcam.service systemrw.mount leprop.service
+Wants=systemrw.mount
+
+[Service]
+Type=simple
+TimeoutStartSec=5
+TimeoutStopSec=5
+KillMode=mixed
+SendSIGKILL=yes
+
+ExecStartPre=/bin/sleep 2
+
+ExecStart=/home/ubuntu/bin/wrapper_service.sh ext_cam
+
+Restart=always
+RestartSec=10s
+
+[Install]
+WantedBy=multi-user.target

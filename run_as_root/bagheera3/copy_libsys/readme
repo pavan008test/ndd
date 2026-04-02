@@ -1,0 +1,9 @@
+Jira Ticket ID :DT-3624 : BSP OS 13.0.30 Changes to be taken in 6.14.rc.2 OTA 
+
+Description:
+
+274aafae2dd6bd04620641665f0aa030  libsys.so
+669fefc61c350995093170ec35f3311c  libsys_version
+
+- The original file `libsys.so.13.0.30.0.0.2` is split into `libsys.so` (main library) and `libsys_version` (version info).
+- Both files are copied to the device only if the MD5 checksum does not match.

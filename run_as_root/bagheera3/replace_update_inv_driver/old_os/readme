@@ -1,0 +1,11 @@
+Jira ID : DT-3041 , DT-2978 IMU ko updates for D450 and D21X - BUG FIX: D450
+
+The file are renamed as *_rar as the .ko extension files are not intended to be at any place other than /lib/module/.... as per system engineering team recommendations. 
+
+While copy to the kernel folder it will be renamed to .ko extension.
+
+Since there are multiple OS in field and there are different implemtantion on this KO logic, these below KO are 
+Applicable to OS version : 13.0.19 and 13.0.1A
+
+905a0820dc53d71e78033ef806eae203  inv-mpu-iio-i2c.ko_rar
+fbf0597b7cf42f74df45d8c9ed70ec57  inv-mpu-iio.ko_rar

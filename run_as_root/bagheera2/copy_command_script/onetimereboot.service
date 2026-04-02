@@ -1,0 +1,14 @@
+[Unit]
+Description=NDService-OneTimeReboot
+
+[Service]
+Type=simple
+TimeoutStartSec=5
+TimeoutStopSec=5
+KillMode=mixed
+SendSIGKILL=yes
+
+ExecStartPre=/bin/sleep 2
+
+ExecStart=/home/ubuntu/.nddevice/reboot_trigger.sh
+

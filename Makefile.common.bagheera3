@@ -1,0 +1,7 @@
+
+CXX := g++ -std=c++11
+CC := gcc
+CFLAGS += -g -DBAGHEERA2
+OPENSSL_LIB_PATH := $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/bagheera/packages/openssl_1.1.1v/lib/
+LDFLAGS += -lpthread -L$(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/bagheera/lib -liniparser -ljansson -lsqlite3 -lzmq -lavutil -lavcodec -lzbar -ldw -L$(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/lib/kvs_sdk/bagheera2/lib -lcurl -L$(OPENSSL_LIB_PATH) -lcrypto -lssl -L$(ND_CORE_LIB_ROOT)/dms_installer_app/build
+C_INCLUDES += $(ND_CORE_LIB_ROOT)/cpp/inc/bagheera3 $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/bagheera/inc $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/bagheera/inc/zbar $(ND_CORE_LIB_ROOT)/nd_thirdparty_lib/bagheera/inc/jansson $(PROTOBUF)/bagheera_1_py3.5/inc

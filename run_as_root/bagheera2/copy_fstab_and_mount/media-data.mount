@@ -1,0 +1,16 @@
+[Unit]
+Description=Ndservice-mount
+DefaultDependencies=no
+Conflicts=umount.target
+Before=local-fs.target sysinit.target umount.target
+After=swap.target
+
+[Mount]
+What=/dev/mmcblk2
+Where=/media/data
+Type=ext4
+Options=defaults,nofail,discard,noexec,nosuid,noatime,nodiratime,noauto_da_alloc
+
+[Install]
+WantedBy=local-fs.target
+

@@ -1,0 +1,1 @@
+ltc3350.ko is getting updated with new power measurement feature. - BGR3-93 in 5.5.29.rc.5 release. Same KO is already updated in 13.0.17 OS release, but this task is to update for old OS. So if this file already upto date with latest md5sum it wont copy. 

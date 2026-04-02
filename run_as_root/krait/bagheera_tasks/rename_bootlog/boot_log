@@ -1,0 +1,2 @@
+#!/bin/bash
+echo "This is the dummy bootlog to run at the start. The original bootlog has been renamed to boot_log_bak to solve issue BHAGEERA-2388"

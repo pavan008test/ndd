@@ -1,0 +1,20 @@
+#  This file is part of systemd copied from systemd-reboot.service.
+#
+#  (This service is used to start a POR just before gracefull reboot completes
+
+[Unit]
+Description=##########___ND_SHUTDOWN___##########
+DefaultDependencies=no
+Requires=umount.target
+Before=systemd-halt.service systemd-shutdown.service final.target
+After=umount.target
+
+[Service]
+Type=simple
+TimeoutSec=10
+KillMode=mixed
+SendSIGKILL=no
+ExecStart=/home/ubuntu/.nddevice/latest/service/nd_shutdown/nd_shutdown.sh
+
+[Install]
+WantedBy=shutdown.target

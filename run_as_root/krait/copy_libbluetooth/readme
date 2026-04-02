@@ -1,0 +1,11 @@
+Author : Dhanyath R
+Author Email : dhanyath.ravi@netradyne.com 
+
+Jira : DT-2995
+
+Description : 
+- Checks for existence of libbluetoothdefault.so in /usr/lib64/
+- Validates library file using MD5 checksum comparison
+
+md5sum for K1 : fd689c425dd75b3e54d1cfdf127d6102
+md5sum for K2 : f9a5fec0c4a950ef4ccb8e87d1297598

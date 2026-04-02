@@ -1,0 +1,7 @@
+This task is used to replace or upgarde the nd_service.sh script from /usr/bin.
+
+Upgrade notes:
+--------------
+Upgraded nd_service.sh script will support the disable services option also.
+
+KRT-1477 : if systemctl stop command is stuck to stop the service then this timeout will make sure to kill the command after timeout

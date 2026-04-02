@@ -1,0 +1,6 @@
+KRT-2389: This Update of libcrypto and libssl is because of vulnerability updates recommended from opessl forum to update to openssl_1.1.1s version where they were fixed. So as part that update openssl bin and libcrypto.so.1.1 and libssl.so.1.1 is being copied to device and getting updated
+
+This RAR task will copy updated libcrypto.so and libssl.so libraries from latest nd_Core_utils branch to /nd_lib/ and /usr/lib/ path for both 32 and 64 bit.
+
+Also linking this libcrypto.so to libcrypto.so.1.1 and libssl.so to libssl.so.1.1 in this Task.
+          

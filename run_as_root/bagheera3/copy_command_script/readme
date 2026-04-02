@@ -1,0 +1,13 @@
+This task is to add command.sh file into .nddevice folder. This command.sh is executed @reboot from sudo crontab if /home/ubuntu/.nddevice/com_root file is present.
+
+This command.sh can contains any command that has explicitely need to run that at some particular scenerios
+
+This com_root file is created with this task and in the next reboot this script is executed and removes that com_reboot file to make the script runs only once 
+------------------------------
+
+Apart from this command.sh we also copy reboot_trigger.sh to .nddevice for onetimereboot service to run. Also copy onetimereboot.service file to /etc/systemd/system/
+
+reboot_trigger will sleep for some time and does shutdown -r now to reboot the device.
+
+After service file and script is copied, service is started with systemclt start.
+

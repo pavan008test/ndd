@@ -1,0 +1,5 @@
+Jira ID - DT-3496 : RAR task to copy the fw_details.ini file
+
+Description : 
+
+Copying fw_details.ini from ndvdm repo : https://github.com/netradyne/nd_vdm/tree/dev_6.14/prebuilts/firmware/vbus_v1

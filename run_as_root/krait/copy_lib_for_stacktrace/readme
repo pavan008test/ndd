@@ -1,0 +1,1 @@
+KRT-2322:When ever there is crash happens for bagheera crash stack trace file is created in svc logs which helps to route cause the issue.

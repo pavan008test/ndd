@@ -1,0 +1,18 @@
+[Unit]
+Description=NDService-obd
+
+[Service]
+TimeoutStartSec=1
+TimeoutStopSec=5
+KillMode=mixed
+SendSIGKILL=yes
+
+ExecStart=/home/ubuntu/bin/wrapper_service.sh obd
+
+Restart=always
+RestartSec=180s
+
+[Install]
+WantedBy=multi-user.target
+
+

@@ -1,0 +1,8 @@
+updated nvargus-daemon.service
+[Service]
+
+OOMScoreAdjust=-1000
+Nice=-10
+
+path-->/etc/systemd/system/nvargus-daemon.service
+jira-id: BGR3-574

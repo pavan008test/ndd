@@ -1,0 +1,8 @@
+Inclusion of rtwpriv binary in /bin/vendor/rtwpriv (in any system Directory)
+
+Jira -id : https://netradyne.atlassian.net/browse/DT-2800
+https://netradyne.atlassian.net/browse/BGR3-1359
+
+md5sum : 	
+6a2e9dbff6bd982db5cc17f4436fbd3e
+And the same rtwpriv is present from 13.0.27 OS 

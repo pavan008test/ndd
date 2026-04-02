@@ -1,0 +1,15 @@
+This is the tool to check the information of the Micron Sdcard present in the device. There is binary inside Micron_mmc_tool folder 55c47766493a14dc8325d7d30ad7a5f0  mmc-utils-micron-hs
+
+This Micron_mmc_tool folder with binary inside will be copied to /home/ubuntu/.nddevice/ 
+
+This binary should be called from cloud command push as follows :
+
+Cloud commnad Usage:
+sudo /home/ubuntu/.nddevice/Micron_mmc_tool/mmc-utils-micron-hs ppeu read hs -d /dev/mmcblk1
+sudo /home/ubuntu/.nddevice/Micron_mmc_tool/mmc-utils-micron-hs ppeu read smart -d /dev/mmcblk1
+
+						OR
+
+cd /home/ubuntu/.nddevice/Micron_mmc_tool/ && sudo ./mmc-utils-micron-hs ppeu read hs -d /dev/mmcblk1
+cd /home/ubuntu/.nddevice/Micron_mmc_tool/ && sudo ./mmc-utils-micron-hs ppeu read smart -d /dev/mmcblk1
+
